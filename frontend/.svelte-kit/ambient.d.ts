@@ -60,6 +60,7 @@ declare module '$env/static/private' {
 	export const SYSTEMD_EXEC_PID: string;
 	export const _: string;
 	export const XAUTHORITY: string;
+	export const VSCODE_GIT_ASKPASS_NODE: string;
 	export const MOTD_SHOWN: string;
 	export const VSCODE_INJECTION: string;
 	export const GTK2_RC_FILES: string;
@@ -70,6 +71,7 @@ declare module '$env/static/private' {
 	export const npm_package_version: string;
 	export const MEMORY_PRESSURE_WATCH: string;
 	export const WAYLAND_DISPLAY: string;
+	export const GIT_ASKPASS: string;
 	export const XDG_SEAT_PATH: string;
 	export const INVOCATION_ID: string;
 	export const MANAGERPID: string;
@@ -78,6 +80,7 @@ declare module '$env/static/private' {
 	export const YSU_VERSION: string;
 	export const KDE_SESSION_UID: string;
 	export const npm_lifecycle_script: string;
+	export const VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
 	export const npm_config_open: string;
 	export const VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 	export const SDL_IM_MODULE: string;
@@ -90,6 +93,7 @@ declare module '$env/static/private' {
 	export const npm_config_prefix: string;
 	export const ZDOTDIR: string;
 	export const USER: string;
+	export const VSCODE_GIT_IPC_HANDLE: string;
 	export const CONDA_SHLVL: string;
 	export const QT_WAYLAND_RECONNECT: string;
 	export const KDE_SESSION_VERSION: string;
@@ -107,6 +111,7 @@ declare module '$env/static/private' {
 	export const XDG_RUNTIME_DIR: string;
 	export const DEBUGINFOD_URLS: string;
 	export const npm_package_json: string;
+	export const VSCODE_GIT_ASKPASS_MAIN: string;
 	export const JOURNAL_STREAM: string;
 	export const XDG_DATA_DIRS: string;
 	export const KDE_FULL_SESSION: string;
@@ -187,6 +192,7 @@ declare module '$env/dynamic/private' {
 		SYSTEMD_EXEC_PID: string;
 		_: string;
 		XAUTHORITY: string;
+		VSCODE_GIT_ASKPASS_NODE: string;
 		MOTD_SHOWN: string;
 		VSCODE_INJECTION: string;
 		GTK2_RC_FILES: string;
@@ -197,6 +203,7 @@ declare module '$env/dynamic/private' {
 		npm_package_version: string;
 		MEMORY_PRESSURE_WATCH: string;
 		WAYLAND_DISPLAY: string;
+		GIT_ASKPASS: string;
 		XDG_SEAT_PATH: string;
 		INVOCATION_ID: string;
 		MANAGERPID: string;
@@ -205,6 +212,7 @@ declare module '$env/dynamic/private' {
 		YSU_VERSION: string;
 		KDE_SESSION_UID: string;
 		npm_lifecycle_script: string;
+		VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
 		npm_config_open: string;
 		VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 		SDL_IM_MODULE: string;
@@ -217,6 +225,7 @@ declare module '$env/dynamic/private' {
 		npm_config_prefix: string;
 		ZDOTDIR: string;
 		USER: string;
+		VSCODE_GIT_IPC_HANDLE: string;
 		CONDA_SHLVL: string;
 		QT_WAYLAND_RECONNECT: string;
 		KDE_SESSION_VERSION: string;
@@ -234,6 +243,7 @@ declare module '$env/dynamic/private' {
 		XDG_RUNTIME_DIR: string;
 		DEBUGINFOD_URLS: string;
 		npm_package_json: string;
+		VSCODE_GIT_ASKPASS_MAIN: string;
 		JOURNAL_STREAM: string;
 		XDG_DATA_DIRS: string;
 		KDE_FULL_SESSION: string;
