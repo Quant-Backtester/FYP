@@ -1,8 +1,7 @@
-from .app import create_app
-from .config import settings
-
+from .config_loader import settings
+from .email import send_email
 
 __all__ = (
-    "create_app",
-    "settings"
+    "settings",
+    "send_email"
 )

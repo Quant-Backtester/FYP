@@ -7,3 +7,8 @@ engine = create_engine(settings.database_url, echo=True, connect_args={"check_sa
 def get_session():
     with Session(engine) as session:
         yield session
+
+__all__ = [
+    "engine",
+    "get_session",
+]

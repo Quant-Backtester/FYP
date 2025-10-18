@@ -7,3 +7,4 @@ class User(SQLModel, table=True):
     username: str = Field(unique=True, index=True)
     email: str = Field(unique=True, index=True)
     hashed_password: str
+    is_verified: bool = Field(default=False)
