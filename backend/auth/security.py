@@ -16,10 +16,12 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     )
 
 def get_user_by_username(session: Session, username: str) -> User | None:
+    """ get user from the database """
     statement = select(User).where(User.username == username)
     return session.exec(statement).first()
 
 def authenticate_user(session: Session, username: str, password: str) -> User | None:
+    """ logic for login a user  """
     user = get_user_by_username(session, username)
     if not user or not verify_password(password, user.hashed_password):
         return None

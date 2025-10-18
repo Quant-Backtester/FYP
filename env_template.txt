@@ -1,0 +1,20 @@
+# --- SECURITY (CRITICAL) ---
+# Generate with: python -c "import secrets; print(secrets.token_urlsafe(32))"
+JWT_SECRET_KEY=your_key
+
+
+# For session middleware (if session key is needed in the future)
+SESSION_SECRET_KEY=your_key
+
+# --- DATABASE ---
+# SQLite (default for dev)
+DATABASE_URL=sqlite:///./app.db
+
+# --- APP CONFIG ---
+DEBUG=true
+
+# --- EMAIL (for verification) ---
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your@gmail.com
+SMTP_PASSWORD=your-app-password

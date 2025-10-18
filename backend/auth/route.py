@@ -1,6 +1,4 @@
-from email.utils import 
-
-
+from typing import Any, Dict
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
@@ -15,9 +13,8 @@ from core import send_email
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @auth_router.post("/register", response_model=UserPublic)
-def register(user: UserCreate, session: Session = Depends(get_session)):
-    #TODO validate email
-
+def register(user: UserCreate, session: Session = Depends(get_session)) -> User:
+    """register a new user, it will also send a verification token through email"""
     existing_user = session.exec(
         select(User).where(
             (User.username == user.username) | (User.email == user.email)
@@ -48,7 +45,8 @@ def register(user: UserCreate, session: Session = Depends(get_session)):
     return db_user
 
 @auth_router.post("/login")
-def login(form_data: LoginRequest, session: Session = Depends(get_session)):
+def login(form_data: LoginRequest, session: Session = Depends(get_session)) -> Dict[str, str]:
+    """ login the user (only verified user can login) """
     user = authenticate_user(session, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -66,7 +64,7 @@ def login(form_data: LoginRequest, session: Session = Depends(get_session)):
 
 
 @auth_router.get("/me", response_model=UserPublic)
-def read_users_me(payload: dict = Depends(get_current_user)):
+def read_users_me(payload: dict = Depends(get_current_user)) -> Dict[str,Any]:
     return {
         "username": payload["sub"],
         "email": payload.get("email")
@@ -74,7 +72,7 @@ def read_users_me(payload: dict = Depends(get_current_user)):
 
 
 @auth_router.get("/verify-email")
-def verify_email(token: str, session: Session = Depends(get_session)):
+def verify_email(token: str, session: Session = Depends(get_session)) -> Dict[str, str]:
     email = verify_verification_token(token)
     if not email:
         raise HTTPException(status_code=400, detail="Invalid or expired token")
