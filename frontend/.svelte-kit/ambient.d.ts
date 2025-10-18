@@ -34,6 +34,7 @@ declare module '$env/static/private' {
 	export const npm_config_userconfig: string;
 	export const COLORTERM: string;
 	export const XDG_CONFIG_DIRS: string;
+	export const VSCODE_DEBUGPY_ADAPTER_ENDPOINTS: string;
 	export const npm_config_cache: string;
 	export const LESS: string;
 	export const XDG_SESSION_PATH: string;
@@ -44,6 +45,7 @@ declare module '$env/static/private' {
 	export const ICEAUTHORITY: string;
 	export const NODE: string;
 	export const MEMORY_PRESSURE_WRITE: string;
+	export const PYDEVD_DISABLE_FILE_VALIDATION: string;
 	export const COLOR: string;
 	export const npm_config_local_prefix: string;
 	export const DESKTOP_SESSION: string;
@@ -58,6 +60,7 @@ declare module '$env/static/private' {
 	export const XDG_SESSION_TYPE: string;
 	export const npm_config_init_module: string;
 	export const SYSTEMD_EXEC_PID: string;
+	export const BUNDLED_DEBUGPY_PATH: string;
 	export const _: string;
 	export const XAUTHORITY: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
@@ -69,6 +72,7 @@ declare module '$env/static/private' {
 	export const LS_COLORS: string;
 	export const XDG_CURRENT_DESKTOP: string;
 	export const npm_package_version: string;
+	export const PYTHONSTARTUP: string;
 	export const MEMORY_PRESSURE_WATCH: string;
 	export const WAYLAND_DISPLAY: string;
 	export const GIT_ASKPASS: string;
@@ -81,7 +85,6 @@ declare module '$env/static/private' {
 	export const KDE_SESSION_UID: string;
 	export const npm_lifecycle_script: string;
 	export const VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
-	export const npm_config_open: string;
 	export const VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 	export const SDL_IM_MODULE: string;
 	export const npm_config_npm_version: string;
@@ -89,6 +92,7 @@ declare module '$env/static/private' {
 	export const TERM: string;
 	export const npm_package_name: string;
 	export const ZSH: string;
+	export const PYTHON_BASIC_REPL: string;
 	export const _CE_CONDA: string;
 	export const npm_config_prefix: string;
 	export const ZDOTDIR: string;
@@ -166,6 +170,7 @@ declare module '$env/dynamic/private' {
 		npm_config_userconfig: string;
 		COLORTERM: string;
 		XDG_CONFIG_DIRS: string;
+		VSCODE_DEBUGPY_ADAPTER_ENDPOINTS: string;
 		npm_config_cache: string;
 		LESS: string;
 		XDG_SESSION_PATH: string;
@@ -176,6 +181,7 @@ declare module '$env/dynamic/private' {
 		ICEAUTHORITY: string;
 		NODE: string;
 		MEMORY_PRESSURE_WRITE: string;
+		PYDEVD_DISABLE_FILE_VALIDATION: string;
 		COLOR: string;
 		npm_config_local_prefix: string;
 		DESKTOP_SESSION: string;
@@ -190,6 +196,7 @@ declare module '$env/dynamic/private' {
 		XDG_SESSION_TYPE: string;
 		npm_config_init_module: string;
 		SYSTEMD_EXEC_PID: string;
+		BUNDLED_DEBUGPY_PATH: string;
 		_: string;
 		XAUTHORITY: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
@@ -201,6 +208,7 @@ declare module '$env/dynamic/private' {
 		LS_COLORS: string;
 		XDG_CURRENT_DESKTOP: string;
 		npm_package_version: string;
+		PYTHONSTARTUP: string;
 		MEMORY_PRESSURE_WATCH: string;
 		WAYLAND_DISPLAY: string;
 		GIT_ASKPASS: string;
@@ -213,7 +221,6 @@ declare module '$env/dynamic/private' {
 		KDE_SESSION_UID: string;
 		npm_lifecycle_script: string;
 		VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
-		npm_config_open: string;
 		VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 		SDL_IM_MODULE: string;
 		npm_config_npm_version: string;
@@ -221,6 +228,7 @@ declare module '$env/dynamic/private' {
 		TERM: string;
 		npm_package_name: string;
 		ZSH: string;
+		PYTHON_BASIC_REPL: string;
 		_CE_CONDA: string;
 		npm_config_prefix: string;
 		ZDOTDIR: string;
