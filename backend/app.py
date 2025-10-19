@@ -1,6 +1,8 @@
+#External
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+#Custom
 from auth import auth_router
 
 def create_app() -> FastAPI:

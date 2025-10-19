@@ -1,8 +1,10 @@
+
+#External
 from fastapi import FastAPI
 import uvicorn
 from sqlmodel import SQLModel
 
-
+#Custom
 from core import settings
 from app import create_app
 from database import engine

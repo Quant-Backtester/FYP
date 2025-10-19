@@ -1,7 +1,11 @@
+#STL
 from typing import Any, Dict
+
+#External
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
+#Custom
 from database import get_session
 from .security import authenticate_user, hash_password  
 from .jwt_setup import create_access_token, get_current_user, create_verification_token, verify_verification_token
@@ -46,7 +50,7 @@ def register(user: UserCreate, session: Session = Depends(get_session)) -> User:
 
 @auth_router.post("/login")
 def login(form_data: LoginRequest, session: Session = Depends(get_session)) -> Dict[str, str]:
-    """ login the user (only verified user can login) """
+    """ login the user (only verified user can login)"""
     user = authenticate_user(session, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -73,6 +77,7 @@ def read_users_me(payload: dict = Depends(get_current_user)) -> Dict[str,Any]:
 
 @auth_router.get("/verify-email")
 def verify_email(token: str, session: Session = Depends(get_session)) -> Dict[str, str]:
+    """ verify email using the token link """
     email = verify_verification_token(token)
     if not email:
         raise HTTPException(status_code=400, detail="Invalid or expired token")

@@ -1,5 +1,7 @@
+#Custom
 from typing import Optional
 
+#External
 from sqlmodel import SQLModel, Field
 
 class User(SQLModel, table=True):

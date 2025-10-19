@@ -10,8 +10,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 #custom
 from core import settings
 
-def create_access_token(data) -> str:
-    to_encode = data.copy()
+def create_access_token(data: Dict[str, str]) -> str:
+    to_encode: Dict[str, str] = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.algorithm)
