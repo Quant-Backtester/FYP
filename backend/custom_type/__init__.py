@@ -1,6 +1,7 @@
-from .auth_type import JwtToken
+from .auth_type import JwtToken, CurrentUser
 
 
 __all__ = (
   "JwtToken",
+  "CurrentUser"
 )

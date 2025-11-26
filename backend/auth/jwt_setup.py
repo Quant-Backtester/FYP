@@ -7,7 +7,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 #custom
-from custom_type import JwtToken
+from custom_type import JwtToken, CurrentUser
 from core import settings
 
 def create_access_token(data: JwtToken) -> str:
@@ -21,22 +21,23 @@ def create_access_token(data: JwtToken) -> str:
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(dependency=HTTPBearer())
-):
+) -> CurrentUser:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    payload = jwt.decode(
+    payload: CurrentUser = jwt.decode(
         jwt=credentials.credentials,
         key=settings.jwt_secret_key,
         algorithms=[settings.algorithm]
     )
-    print(payload)
     username: str = payload.get("sub")
-    if username is None:
+    email: str = payload.get("email")
+    if username is None or email is None:
         raise credentials_exception
+    
     return payload
 
 

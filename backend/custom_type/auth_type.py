@@ -7,3 +7,7 @@ class JwtToken(TypedDict):
   sub: Required[str]
   exp: NotRequired[datetime]
   
+  
+class CurrentUser(TypedDict):
+    sub: str
+    email: str
