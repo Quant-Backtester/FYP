@@ -1,7 +1,6 @@
-from .db import engine, get_session
-
+from .sql_db import get_session, engine
 
 __all__ = (
-    "engine",
+    "engine", 
     "get_session",
 )
