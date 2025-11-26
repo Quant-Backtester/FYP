@@ -1,5 +1,4 @@
 #STL
-from typing import Any
 
 #External
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -8,7 +7,7 @@ from sqlmodel import Session, select
 #Custom
 from custom_type import JwtToken
 from database import get_session
-from .security import authenticate_user, generate_verify_url, hash_password  
+from .security import authenticate_user, generate_verify_url, hash_password, is_existing_user
 from .jwt_setup import create_access_token, get_current_user, create_verification_token, verify_verification_token
 from .auth_model import UserPublic, UserCreate, LoginRequest
 from custom_type import CurrentUser
@@ -21,14 +20,8 @@ auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 def register(user: UserCreate, session: Session = Depends(dependency=get_session)) -> User:
     """register a new user, it will also send a verification token through email"""
     
-    existing_user = session.exec(
-        select(User).where(
-            (User.username == user.username) | (User.email == user.email)
-        )
-    ).first()
-    
-    if existing_user:
-        raise HTTPException(
+    if is_existing_user(session=session, username=user.username, email=user.email):
+            raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username or email already registered"
         )
