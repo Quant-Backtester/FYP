@@ -5,9 +5,9 @@ import uvicorn
 from sqlmodel import SQLModel
 
 #Custom
-from core import settings
 from core import create_app
 from database import engine
+from configs import settings
 
 if __name__ == "__main__":
     """ starting the server here """

@@ -1,7 +1,7 @@
-fastapi
 uvicorn
 sqlmodel
 pyjwt[crypto]
 bcrypt
 pydantic
 pydantic-settings
+fastapi[standard]

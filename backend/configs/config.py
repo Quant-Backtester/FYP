@@ -3,6 +3,7 @@ import os
 
 #External
 from pydantic import BaseModel
+from Enums import RequestType
 
 class Settings(BaseModel):
     """ Config for the server """
@@ -23,6 +24,17 @@ class Settings(BaseModel):
     smtp_port: int = int(os.getenv("SMTP_PORT", "465"))
     smtp_user: str = os.getenv("SMTP_USER", "")
     smtp_password: str = os.getenv("SMTP_PASSWORD", "")
+    
+    allowed_origin: list[str] = [
+        "http://localhost:5173",
+        
+    ]
+    allow_methods: list[str] = [
+        method.value for method in RequestType
+    ]
+    allow_headers: list[str] = [
+        "*"
+    ]
 
     class Config:
         env_file = ".env"

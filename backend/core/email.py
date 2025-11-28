@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 #Custom
-from core import settings
+from configs import settings
 
 def send_email(to_email: str, subject: str, body: str) -> None:
     # For development: just print to console

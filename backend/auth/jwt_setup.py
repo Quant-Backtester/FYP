@@ -8,7 +8,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 #custom
 from custom_type import JwtToken, CurrentUser
-from core import settings
+from configs import settings
 
 def create_access_token(data: JwtToken) -> str:
     to_encode: JwtToken = {

@@ -9,5 +9,5 @@ class JwtToken(TypedDict):
   
   
 class CurrentUser(TypedDict):
-    sub: str
-    email: str
+  sub: str
+  email: str

@@ -1,7 +1,7 @@
 # External
 import bcrypt
 from sqlmodel import Session, select
-from core import settings
+from configs import settings
 
 # Custom
 from models import User
