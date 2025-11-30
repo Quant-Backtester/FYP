@@ -11,11 +11,11 @@ from custom_type import JwtToken, CurrentUser
 from configs import settings
 
 def create_access_token(data: JwtToken) -> str:
-    to_encode: JwtToken = {
-        "sub": data["sub"],
-        "email": data["email"],
-        "exp": datetime.now() + timedelta(minutes=settings.access_token_expire_minutes)
-    }
+    to_encode = JwtToken(
+        sub=data["sub"],
+        email=data["email"],
+        exp=datetime.now() + timedelta(minutes=settings.access_token_expire_minutes)
+    )
     return jwt.encode(payload=to_encode, key=settings.jwt_secret_key, algorithm=settings.algorithm) # type: ignore
 
 
