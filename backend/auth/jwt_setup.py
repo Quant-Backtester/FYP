@@ -46,8 +46,8 @@ def create_verification_token(email: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=30)
     
     return jwt.encode(
-        {"sub": email, "exp": expire, "type": "verification"},
-        settings.jwt_secret_key,
+        payload={"sub": email, "exp": expire, "type": "verification"},
+        key=settings.jwt_secret_key,
         algorithm=settings.algorithm
     )
 
@@ -57,3 +57,8 @@ def verify_verification_token(token: str) -> str | None:
     if payload.get("type") != "verification":
         return None
     return payload.get("sub")
+
+
+__all__ = (
+    
+)

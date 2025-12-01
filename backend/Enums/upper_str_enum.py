@@ -4,3 +4,8 @@ class UpperStrEnum(StrEnum):
   @staticmethod
   def _generate_next_value_(name, *args) -> str:
     return name.upper()
+  
+
+__all__ = (
+  "UpperStrEnum",
+)

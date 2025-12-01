@@ -14,3 +14,16 @@ class UserCreate(BaseModel):
 class UserPublic(BaseModel):
     username: str
     email: str
+    
+    
+class AccessToken(BaseModel):
+    access_token: str
+    token_type: str
+    
+    
+__all__ = (
+    "LoginRequest",
+    "UserCreate",
+    "UserPublic",
+    "AccessToken"
+)

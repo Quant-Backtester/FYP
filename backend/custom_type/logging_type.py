@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Any, TypedDict, ReadOnly, NotRequired, Required
+from typing import Any, Literal, TypedDict, NotRequired, Required
 
 
 class LoggingType(TypedDict):
@@ -12,22 +11,41 @@ class LoggingType(TypedDict):
   message: str
   exception: NotRequired[str]
   
-class LogError(TypedDict):
-  status_code: Required[int]
-  duration_ms: float
   
   
-class LogResponse(TypedDict):
-  status_code: Required[int]
-  duration_ms: float
+class HttpRequestLog(TypedDict):
+    msg: Literal["HTTP Request"]
+    event: str
+    method: Required[str]
+    url: Required[str]
+    query_params: dict[str, str | list[str]]
+    path_params: dict[str, str]
+    headers: dict[str, str]
+    client_ip: str | None
+    user_agent: str | None
+    body: dict[str, Any] | list[Any] | str | None
+
+class HttpResponseLog(TypedDict):
+    msg: Literal["HTTP Response"]
+    event: str
+    status_code: int
+    duration_ms: float
+    request_id: str
+
+class HttpErrorLog(TypedDict):
+    msg: Literal["Request failed"]
+    event: str
+    status_code: int
+    duration_ms: float
+    error: str 
+    traceback: str | None
+    request_id: NotRequired[str]
   
-class LogRequest(TypedDict):
-  method: Required[int]
-  url: Required[int]
-  query_params: NotRequired[dict[str, Any]]
-  path_params: NotRequired[dict[str, Any]]
-  headers: NotRequired[dict[str, Any]]
-  client_ip: str
-  user_agent: str
-  body: NotRequired[dict[str, Any]]
+  
+__all__ = (
+  "LoggingType",
+  "HttpErrorLog",
+  "HttpRequestLog",
+  "HttpResponseLog"
+)
   

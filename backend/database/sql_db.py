@@ -7,12 +7,15 @@ engine = create_engine(url=settings.database_url, echo=True, connect_args={"chec
 
 def get_session() -> Generator[Session, None, None]:
     """FastAPI dependency for auto-commit/rollback"""
-    session = Session(bind=engine)
-    try:
-        yield session
-        session.commit()
-    except Exception:
-        session.rollback()
-        raise
-    finally:
-        session.close()
+    with Session(bind=engine) as session:
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        
+        
+__all__ = (
+    "get_session",
+)

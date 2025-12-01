@@ -2,7 +2,7 @@ from enum import auto
 
 from .upper_str_enum import UpperStrEnum
 
-class RequestType(UpperStrEnum):
+class RequestEnum(UpperStrEnum):
   GET = auto()
   POST = auto()
   DELETE = auto()
@@ -12,3 +12,7 @@ class RequestType(UpperStrEnum):
   OPTIONS = auto()
   
   
+  
+__all__ = (
+  "RequestEnum",
+)

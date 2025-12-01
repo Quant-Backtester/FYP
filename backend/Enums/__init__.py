@@ -1,5 +1,7 @@
-from .request_type import RequestType
+from .request_enum import RequestEnum
+from .event_enum import EventEnum
 
 __all__ = (
-  "RequestType",
+  "RequestEnum",
+  "EventEnum",
 )

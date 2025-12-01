@@ -2,7 +2,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
 
 
 #Custom
@@ -25,7 +24,7 @@ def create_app() -> FastAPI:
         allow_headers=settings.allow_headers,
     )
     
-    app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch= LoggingMiddleware())
+    app.add_middleware(middleware_class=LoggingMiddleware)
     
     #TODO add this in production system
     # app.add_middleware(HTTPSRedirectMiddleware)
@@ -34,3 +33,8 @@ def create_app() -> FastAPI:
 
     
     return app
+
+
+__all__ = (
+    "create_app",
+)

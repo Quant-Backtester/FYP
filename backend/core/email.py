@@ -16,11 +16,17 @@ def send_email(to_email: str, subject: str, body: str) -> None:
 
     # Production: use real SMTP (need an actual email)
     msg = MIMEMultipart()
-    msg["From"] = settings.smtp_user
-    msg["To"] = to_email
     msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain"))
+    msg["To"] = to_email
+    msg["From"] = settings.smtp_user
+    msg.attach(payload=MIMEText(_text=body, _subtype="plain"))
 
-    with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port) as server:
-        server.login(settings.smtp_user, settings.smtp_password)
-        server.send_message(msg)
+    with smtplib.SMTP_SSL(host=settings.smtp_host, port=settings.smtp_port) as server:
+        server.login(user=settings.smtp_user, password=settings.smtp_password)
+        server.send_message(msg=msg)
+        
+
+
+__all__ = (
+    "send_email",
+)

@@ -3,7 +3,7 @@ import os
 
 #External
 from pydantic import BaseModel
-from Enums import RequestType
+from Enums import RequestEnum
 
 class Settings(BaseModel):
     """ Config for the server """
@@ -30,11 +30,37 @@ class Settings(BaseModel):
         
     ]
     allow_methods: list[str] = [
-        method.value for method in RequestType
+        method.value for method in RequestEnum
     ]
     allow_headers: list[str] = [
         "*"
     ]
+    
+    MAX_BODY_LOG_SIZE: int = 1024 * 1024
+    
+    SENSITIVE_HEADERS: set[str] = {
+        "authorization",
+        "cookie",
+        "set-cookie",
+        "x-api-key",
+        "x-auth-token",
+        "proxy-authorization",
+    }
+    SENSITIVE_BODY_FIELDS: set[str] = {
+        "password",
+        "token",
+        "access_token",
+        "refresh_token",
+        "credit_card",
+        "cvv",
+        "ssn",
+        "secret",
+    }
 
     class Config:
         env_file = ".env"
+        
+        
+__all__ = (
+    "Settings",
+)

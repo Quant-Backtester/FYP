@@ -52,3 +52,9 @@ def get_logger(request_id: str | None = None):
 
 
 setup_logging()
+
+
+__all__ = (
+    "setup_logging",
+    "get_logger"
+)

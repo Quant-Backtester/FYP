@@ -1,76 +1,144 @@
+#STL
+from logging import Logger, LoggerAdapter
 import time
+from typing import Any, Callable
 import uuid
 import json
+import traceback
+
+# Third-Party
 from fastapi import Request, Response
-from configs import get_logger
+from starlette.middleware.base import RequestResponseEndpoint, BaseHTTPMiddleware
+from starlette.types import ASGIApp
 
+#Custom
+from configs import get_logger, settings
+from custom_type import HttpResponseLog, HttpRequestLog, HttpErrorLog
+from Enums import EventEnum, RequestEnum
 
-class LoggingMiddleware:
-    def __init__(self) -> None:
-        pass
+class LoggingMiddleware(BaseHTTPMiddleware):
+    
+    def __init__(self, app: ASGIApp, *, dispatch: Callable | None = None):
+        super().__init__(app, dispatch)
+    
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint):
+        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
         
-    async def __call__(self, request: Request, call_next):
-        request_id = self._get_or_create_request_id(request=request)
         client_ip = self._get_client_ip(request=request)
-        body_json = await self._read_body_safely(request=request)
+        
+        body_bytes= await self._read_body_once(request=request)
+        body_json = self._parse_and_scrub_body(body_bytes=body_bytes)
+        
         start_time = time.perf_counter()
-        logger = get_logger(request_id=request_id)
+        logger= get_logger(request_id=request_id)
 
         self._log_request(logger=logger, request=request, client_ip=client_ip, body_json=body_json)
 
         try:
             response = await call_next(request)
             duration_ms = round((time.perf_counter() - start_time) * 1000, 2)
-            self._log_response(logger, response, duration_ms, request_id)
+            self._log_response(logger=logger, response=response, duration_ms=duration_ms, request_id=request_id)
             return response
-        except Exception as e:
+        except Exception as exe:
             duration_ms = round((time.perf_counter() - start_time) * 1000, 2)
-            self._log_error(logger, duration_ms)
+            self._log_error(logger=logger, duration_ms=duration_ms, exe=exe, request_id=request_id)
             raise
+        
+    
+    @staticmethod
+    def _set_request_id_header(response: Response, request_id: str) -> None:
+        """ assign request_id to header """
+        if "X-Request-ID" not in response.headers:
+            response.headers["X-Request-ID"] = request_id
+            
+        
+    @staticmethod
+    def _get_client_ip(request: Request) -> str | None:
+        """ Get Client ip address based on the forwarded list """
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            return forwarded.split(",", 1)[0].strip()
+        return request.client.host if request.client else None
 
-    def _get_or_create_request_id(self, request: Request) -> str:
-        return request.headers.get("X-Request-ID") or str(uuid.uuid4())
+    def _scrub_headers(self, headers: dict[str, str]) -> dict[str, str]:
+        return {
+            k: "***" if k.lower() in settings.SENSITIVE_HEADERS else v
+            for k, v in headers.items()
+        }
+        
+    def _parse_and_scrub_body(self, body_bytes: bytes | str) -> Any:
+            if not body_bytes:
+                return None
+            try:
+                data = json.loads(body_bytes)
+                if isinstance(data, dict):
+                    return {
+                        k: "***" if k.lower() in settings.SENSITIVE_BODY_FIELDS else v
+                        for k, v in data.items()
+                    }
+                return data
+            except json.JSONDecodeError:
+                return "<non-invalid json>"
 
+    async def _read_body_once(self, request: Request) -> bytes | str:
+            """Read body only once and cache it safely for later consumers."""
+            if request.method not in RequestEnum:
+                return "<Method does not exist>"
+            content_type = request.headers.get("content-type", "")
+            if not content_type.startswith("application/json"):
+                return "<invalid type>"
 
-    def _get_client_ip(self, request: Request) -> str | None:
-        client_ip = request.client.host if request.client else None
-        forwarded_for = request.headers.get("X-Forwarded-For")
-        if forwarded_for:
-            client_ip = forwarded_for.split(",")[0].strip()
-        return client_ip
+            body = await request.body()
+            if len(body) > settings.MAX_BODY_LOG_SIZE:
+                return "<body too large>"
+            request._body = body
+            return body
 
-
-    async def _read_body_safely(self, request: Request):
-        body_bytes = await request.body()
-        body: str = body_bytes.decode()
-        body_json = json.loads(body) 
-        request._body = body_bytes
-        return body_json
-
-    def _log_request(self, logger, request: Request, client_ip, body_json) -> None:
-        logger.info(
+    def _log_request(self, logger, request: Request, client_ip: str | None, body_json:Any) -> None:
+        scrubbed_headers = self._scrub_headers(dict(request.headers))
+        
+        log_data = HttpRequestLog(
             msg="HTTP Request",
+            event=EventEnum.REQUEST,
             method=request.method,
             url=str(request.url),
             query_params=dict(request.query_params),
             path_params=dict(request.path_params),
-            headers=dict(request.headers),
+            headers=scrubbed_headers,
             client_ip=client_ip,
             user_agent=request.headers.get("user-agent"),
             body=body_json,
         )
+        logger.info(log_data)
 
     def _log_response(self, logger, response: Response, duration_ms, request_id) -> None:
-        response.headers["X-Request-ID"] = request_id
-        logger.info(
+        if "X-Request-ID" not in response.headers:
+            response.headers["X-Request-ID"] = request_id
+            
+        log_data = HttpResponseLog(
             msg="HTTP Response",
+            event= EventEnum.RESPONSE,
             status_code=response.status_code,
-            duration_ms=duration_ms
+            duration_ms=duration_ms,
+            request_id=request_id
         )
+        logger.info(log_data)
 
-    def _log_error(self, logger, duration_ms) -> None:
-        logger.exception(
-            "Request failed",
+    def _log_error(self, logger, duration_ms: float, exe: Exception, request_id: str) -> None:
+        log_data = HttpErrorLog(
+            msg="Request failed",
+            event=EventEnum.ERROR,
+            request_id=request_id,
             status_code=500,
-            duration_ms=duration_ms
+            duration_ms=duration_ms,
+            error=str(exe),
+            traceback=traceback.format_exc()
         )
+        
+        logger.exception(log_data)
+        
+
+
+__all__ = (
+    "LoggingMiddleware",
+)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TypedDict, NamedTuple, Required, NotRequired
+from typing import TypedDict, Required, NotRequired
 
 
 class JwtToken(TypedDict):
@@ -11,3 +11,10 @@ class JwtToken(TypedDict):
 class CurrentUser(TypedDict):
   sub: str
   email: str
+  
+
+
+__all__ = (
+  "JwtToken",
+  "CurrentUser",
+)
