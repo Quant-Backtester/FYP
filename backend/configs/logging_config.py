@@ -31,7 +31,7 @@ class JSONLogFormatter(logging.Formatter):
 def setup_logging():
     Path("logs").mkdir(exist_ok=True)
     handler = TimedRotatingFileHandler(
-        "logs/app.jsonl", when="midnight", interval=1, backupCount=30, encoding="utf-8"
+        filename="logs/app.jsonl", when="midnight", interval=1, backupCount=30, encoding="utf-8"
     )
     formatter = JSONLogFormatter()
     handler.setFormatter(formatter)

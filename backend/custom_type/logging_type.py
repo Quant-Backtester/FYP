@@ -1,4 +1,4 @@
-from typing import Any, Literal, TypedDict, NotRequired, Required
+from typing import Literal, TypedDict, NotRequired, Required
 
 
 class LoggingType(TypedDict):
@@ -13,7 +13,7 @@ class LoggingType(TypedDict):
   
   
   
-class HttpRequestLog(TypedDict):
+class HttpRequestLog[T](TypedDict):
     msg: Literal["HTTP Request"]
     event: str
     method: Required[str]
@@ -21,9 +21,9 @@ class HttpRequestLog(TypedDict):
     query_params: dict[str, str | list[str]]
     path_params: dict[str, str]
     headers: dict[str, str]
-    client_ip: str | None
+    client_ip: str
     user_agent: str | None
-    body: dict[str, Any] | list[Any] | str | None
+    body: dict[str, T] | str
 
 class HttpResponseLog(TypedDict):
     msg: Literal["HTTP Response"]
@@ -38,7 +38,7 @@ class HttpErrorLog(TypedDict):
     status_code: int
     duration_ms: float
     error: str 
-    traceback: str | None
+    traceback: str
     request_id: NotRequired[str]
   
   

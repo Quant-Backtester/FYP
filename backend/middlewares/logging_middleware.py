@@ -1,7 +1,6 @@
 #STL
-from logging import Logger, LoggerAdapter
 import time
-from typing import Any, Callable
+from typing import Callable
 import uuid
 import json
 import traceback
@@ -26,8 +25,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         
         client_ip = self._get_client_ip(request=request)
         
-        body_bytes= await self._read_body_once(request=request)
-        body_json = self._parse_and_scrub_body(body_bytes=body_bytes)
+        body= await self._read_body_once(request=request)
+        body_json = self._parse_and_scrub_body(body=body)
         
         start_time = time.perf_counter()
         logger= get_logger(request_id=request_id)
@@ -48,17 +47,18 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     @staticmethod
     def _set_request_id_header(response: Response, request_id: str) -> None:
         """ assign request_id to header """
-        if "X-Request-ID" not in response.headers:
-            response.headers["X-Request-ID"] = request_id
+        if "X-Request-ID" in response.headers:
+            return
+        response.headers["X-Request-ID"] = request_id
             
         
     @staticmethod
-    def _get_client_ip(request: Request) -> str | None:
+    def _get_client_ip(request: Request) -> str:
         """ Get Client ip address based on the forwarded list """
         forwarded = request.headers.get("X-Forwarded-For")
         if forwarded:
             return forwarded.split(",", 1)[0].strip()
-        return request.client.host if request.client else None
+        return request.client.host if request.client else "Empty IP address"
 
     def _scrub_headers(self, headers: dict[str, str]) -> dict[str, str]:
         return {
@@ -66,35 +66,35 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             for k, v in headers.items()
         }
         
-    def _parse_and_scrub_body(self, body_bytes: bytes | str) -> Any:
-            if not body_bytes:
-                return None
-            try:
-                data = json.loads(body_bytes)
-                if isinstance(data, dict):
-                    return {
-                        k: "***" if k.lower() in settings.SENSITIVE_BODY_FIELDS else v
-                        for k, v in data.items()
-                    }
-                return data
-            except json.JSONDecodeError:
-                return "<non-invalid json>"
+    def _parse_and_scrub_body(self, body: bytes | str) -> dict | str:
+        if not body:
+            return "Empty Body"
+        if isinstance(body, str):
+            return body
+        
+        data = json.loads(body)
+        if isinstance(data, dict):
+            return {
+                k: "***" if k.lower() in settings.SENSITIVE_BODY_FIELDS else v
+                for k, v in data.items()
+            }
+        return data
 
     async def _read_body_once(self, request: Request) -> bytes | str:
-            """Read body only once and cache it safely for later consumers."""
-            if request.method not in RequestEnum:
-                return "<Method does not exist>"
-            content_type = request.headers.get("content-type", "")
-            if not content_type.startswith("application/json"):
-                return "<invalid type>"
+        """Read body only once and cache it safely for later consumers."""
+        if request.method not in RequestEnum:
+            return "<Method does not exist>"
+        content_type = request.headers.get("content-type", "")
+        if not content_type.startswith("application/json"):
+            return "<invalid type>"
 
-            body = await request.body()
-            if len(body) > settings.MAX_BODY_LOG_SIZE:
-                return "<body too large>"
-            request._body = body
-            return body
+        body = await request.body()
+        if len(body) > settings.MAX_BODY_LOG_SIZE:
+            return "<body too large>"
+        request._body = body
+        return body
 
-    def _log_request(self, logger, request: Request, client_ip: str | None, body_json:Any) -> None:
+    def _log_request(self, logger, request: Request, client_ip: str, body_json: dict | str) -> None:
         scrubbed_headers = self._scrub_headers(dict(request.headers))
         
         log_data = HttpRequestLog(
