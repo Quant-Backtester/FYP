@@ -1,6 +1,7 @@
 #STL
 
 #External
+from typing import TypedDict
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlmodel import Session, select
 
@@ -13,6 +14,9 @@ from .auth_model import UserPublic, UserCreate, LoginRequest, AccessToken
 from custom_type import CurrentUser
 from models import User
 from core import send_email
+
+class VerifyResponseMessage(TypedDict):
+    message: str
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -74,7 +78,7 @@ def read_users_me(payload: CurrentUser = Depends(dependency=get_current_user)) -
     return payload
 
 @auth_router.get(path="/verify-email", status_code=status.HTTP_200_OK)
-def verify_email(token: str, session: Session = Depends(dependency=get_session)) -> dict[str, str]:
+def verify_email(token: str, session: Session = Depends(dependency=get_session)) -> VerifyResponseMessage:
     """ verify email using the token link """
     email: str | None = verify_verification_token(token)
     if not email:
@@ -85,11 +89,11 @@ def verify_email(token: str, session: Session = Depends(dependency=get_session))
         raise HTTPException(status_code=404, detail="User not found")
 
     if user.is_verified:
-        return {"message": "Email already verified"}
+        return VerifyResponseMessage(message="Email already verified")
 
     user.is_verified = True
     session.add(instance=user)
-    return {"message": "Email verified successfully"}
+    return VerifyResponseMessage(message="Email verified successfully")
 
 
 __all__ = (
