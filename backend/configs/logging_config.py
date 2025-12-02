@@ -51,7 +51,6 @@ def get_logger(request_id: str | None = None):
     return logger
 
 
-setup_logging()
 
 
 __all__ = (
