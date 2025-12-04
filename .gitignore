@@ -209,10 +209,6 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-
-
-# frontend part
-
 node_modules
 
 # Output
@@ -222,6 +218,8 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
+/dist
+
 
 # OS
 .DS_Store
@@ -236,5 +234,3 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-
-my-vnev/
