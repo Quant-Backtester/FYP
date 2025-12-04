@@ -17,7 +17,7 @@ class Settings(BaseModel):
     # Security
     jwt_secret_key: str = os.getenv("JWT_SECRET_KEY", "default")
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
+    access_token_expire_minutes: int = 60
 
     #email
     smtp_host: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
