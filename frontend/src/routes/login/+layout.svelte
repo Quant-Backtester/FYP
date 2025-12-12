@@ -1,13 +1,13 @@
 <script>
-  import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
+  import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
 
-  let { children } = $props()
+  let { children } = $props();
 
   onMount(() => {
-    const token = localStorage.getItem('auth_token');
-    if(token){
-      goto("/home")
+    const token = localStorage.getItem("token");
+    if (token) {
+      goto("/home");
     }
   });
 </script>

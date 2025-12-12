@@ -1,14 +1,14 @@
 <script lang="ts">
   import * as Card from "$lib/components/ui/card/index.js";
-  import { Button } from '$lib/components/ui/button/index.js';
-  import { Input } from '$lib/components/ui/input/index.js';
-  import { Label } from '$lib/components/ui/label/index.js';
-  import * as Alert from "$lib/components/ui/alert/index.js"
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
+  import * as Alert from "$lib/components/ui/alert/index.js";
   import AlertCircleIcon from "@lucide/svelte/icons/alert-circle";
-  import { Mail, ArrowLeft, CheckCircle, Loader } from 'lucide-svelte';
-  import { goto } from '$app/navigation';
-  import { Icon, toast } from 'svelte-sonner';
-  import { resetPassword } from "$lib/utils/auth.js"
+  import { Mail, ArrowLeft, CheckCircle, Loader } from "lucide-svelte";
+  import { goto } from "$app/navigation";
+  import { Icon, toast } from "svelte-sonner";
+  import { resetPassword } from "$lib/utils/auth.js";
 
   let email = $state("");
   let isLoading = $state(false);
@@ -16,7 +16,7 @@
 
   async function handleSubmit() {
     if (!email) {
-      toast.error('Please enter your email address');
+      toast.error("Please enter your email address");
       return;
     }
 
@@ -27,27 +27,31 @@
 
       if (result.success) {
         isSubmitted = true;
-        toast.success(result.message || 'Reset instructions sent!');
+        toast.success(result.message || "Reset instructions sent!");
       } else {
-        toast.error(result.message || 'Failed to send reset instructions');
+        toast.error(result.message || "Failed to send reset instructions");
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
-      console.error('Reset password error:', error);
+      toast.error("An error occurred. Please try again.");
+      console.error("Reset password error:", error);
     } finally {
       isLoading = false;
     }
   }
 </script>
 
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+<div
+  class="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 p-4"
+>
   <div class="w-full max-w-md">
     <Card.Root class="border shadow-lg">
       <Card.Header class="text-center">
         <Button
           variant="ghost"
           size="sm"
-          onclick={() => { goto("/login")}}
+          onclick={() => {
+            goto("/login");
+          }}
           class="absolute left-4 top-4"
         >
           <ArrowLeft class="mr-2 h-4 w-4" />
@@ -82,7 +86,9 @@
                 Email Address
               </Label>
               <div class="relative">
-                <Mail class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Mail
+                  class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                />
                 <Input
                   id="email"
                   type="email"
@@ -94,11 +100,7 @@
               </div>
             </div>
 
-            <Button
-              onclick={handleSubmit}
-              class="w-full"
-              disabled={isLoading}
-            >
+            <Button onclick={handleSubmit} class="w-full" disabled={isLoading}>
               {#if isLoading}
                 <Loader class="mr-2 h-4 w-4 animate-spin" />
                 Sending...
@@ -110,7 +112,9 @@
         {:else}
           <!-- Success State -->
           <div class="text-center space-y-4">
-            <div class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+            <div
+              class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center"
+            >
               <CheckCircle class="h-8 w-8 text-green-600" />
             </div>
 
@@ -124,17 +128,22 @@
             </div>
 
             <Alert.Root variant="default" class="bg-gray-50">
-                <AlertCircleIcon/>
+              <AlertCircleIcon />
               <Alert.Description class="text-gray-600 text-sm">
                 Didn't receive the email? Check your spam folder or
-                <button onclick={() => isSubmitted = false} class="text-primary hover:underline ml-1">
+                <button
+                  onclick={() => (isSubmitted = false)}
+                  class="text-primary hover:underline ml-1"
+                >
                   try again
                 </button>
               </Alert.Description>
             </Alert.Root>
 
             <Button
-              onclick={()=> {goto("/login")}}
+              onclick={() => {
+                goto("/login");
+              }}
               variant="outline"
               class="w-full"
             >

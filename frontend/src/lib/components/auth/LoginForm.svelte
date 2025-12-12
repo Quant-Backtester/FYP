@@ -76,6 +76,7 @@
         <Lock class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
           id="password"
+          placeholder="password"
           type={showPassword ? "text" : "password"}
           class="pr-10 pl-10"
           bind:value={password}

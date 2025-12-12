@@ -21,6 +21,7 @@
 ```
 - Use tab size 2 for the entire project development
 - format document when you need.
+- For other IDE/text editor, please consult the documentation for the IDE/text editor
 
 
 
