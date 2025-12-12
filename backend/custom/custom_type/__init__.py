@@ -8,5 +8,5 @@ __all__ = (
   "LoggingType",
   "HttpErrorLog",
   "HttpRequestLog",
-  "HttpResponseLog"
+  "HttpResponseLog",
 )

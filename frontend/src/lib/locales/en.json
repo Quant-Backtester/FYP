@@ -1,0 +1,45 @@
+{
+  "term": "Term of Service",
+  "privacy": "Privacy Policy",
+  "continue": "By continuing, you agree to our",
+  "and": "and",
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In to your account",
+      "description": "Welcome back!",
+      "email": "Email",
+      "password": "Password",
+      "forgotPassword": "Forgot your password?",
+      "rememberMe": "Remember me",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signup": "Create an account",
+      "logging_in": "Logging in...",
+      "login": "Login"
+    },
+    "signup": {
+      "title": "Create Account",
+      "name": "Full Name",
+      "confirmPassword": "Confirm Password",
+      "agreeTerms": "I agree to the terms and conditions"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "Enter your email to receive reset instructions",
+      "successTitle": "Check your email",
+      "successMessage": "We've sent password reset instructions to:"
+    }
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings"
+  }
+}
