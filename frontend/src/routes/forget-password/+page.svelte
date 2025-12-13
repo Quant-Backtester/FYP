@@ -9,6 +9,7 @@
   import { goto } from "$app/navigation";
   import { Icon, toast } from "svelte-sonner";
   import { resetPassword } from "$lib/utils/auth.js";
+  import { _ } from "svelte-i18n";
 
   let email = $state("");
   let isLoading = $state(false);
@@ -55,7 +56,7 @@
           class="absolute left-4 top-4"
         >
           <ArrowLeft class="mr-2 h-4 w-4" />
-          Back
+          {$_("common.back")}
         </Button>
 
         <Card.Title class="text-2xl font-bold tracking-tight">

@@ -27,6 +27,7 @@ from database.models import User
 
 class VerifyResponseMessage(TypedDict):
   message: str
+  status_code: int
 
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -112,18 +113,18 @@ def verify_email(
   """verify email using the token link"""
   email: str | None = verify_verification_token(token)
   if not email:
-    raise HTTPException(status_code=400, detail="Invalid or expired token")
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
 
   user: User | None = session.exec(select(User).where(User.email == email)).first()
   if not user:
-    raise HTTPException(status_code=404, detail="User not found")
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
   if user.is_verified:
-    return VerifyResponseMessage(message="Email already verified")
+    return VerifyResponseMessage(status_code=status.HTTP_401_UNAUTHORIZED ,message="Email already verified")
 
   user.is_verified = True
   session.add(instance=user)
-  return VerifyResponseMessage(message="Email verified successfully")
+  return VerifyResponseMessage(status_code=status.HTTP_200_OK ,message="Email verified successfully")
 
 
 __all__ = ("auth_router",)

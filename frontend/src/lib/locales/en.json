@@ -7,7 +7,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "loading": "Loading...",
-    "error": "An error occurred"
+    "error": "An error occurred",
+    "back": "Back"
   },
   "auth": {
     "login": {
@@ -40,6 +41,8 @@
     "home": "Home",
     "dashboard": "Dashboard",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "login": "Login",
+    "signup": "Signup"
   }
 }

@@ -4,8 +4,6 @@
   import "./layout.css";
   import "../i18n.ts"
 
-
-
   let { children } = $props();
 </script>
 
