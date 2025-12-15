@@ -1,13 +1,17 @@
 # STL
+from logging import Logger, LoggerAdapter
 import time
-from typing import Callable
 import uuid
 import json
 import traceback
 
 # Third-Party
 from fastapi import Request, Response
-from starlette.middleware.base import RequestResponseEndpoint, BaseHTTPMiddleware
+from starlette.middleware.base import (
+  RequestResponseEndpoint,
+  BaseHTTPMiddleware,
+  DispatchFunction,
+)
 from starlette.types import ASGIApp
 
 # Custom
@@ -17,7 +21,7 @@ from custom.custom_enums import EventEnum, RequestEnum
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
-  def __init__(self, app: ASGIApp, *, dispatch: Callable | None = None):
+  def __init__(self, app: ASGIApp, *, dispatch: DispatchFunction | None = None):
     super().__init__(app, dispatch)
 
   async def dispatch(self, request: Request, call_next: RequestResponseEndpoint):
@@ -29,7 +33,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     body_json = self._parse_and_scrub_body(body=body)
 
     start_time = time.perf_counter()
-    logger = get_logger(request_id=request_id)
+    logger: LoggerAdapter[Logger] | Logger = get_logger(request_id=request_id)
 
     self._log_request(
       logger=logger, request=request, client_ip=client_ip, body_json=body_json

@@ -3,7 +3,8 @@
 # External
 from typing import TypedDict
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
-from sqlmodel import Session, select
+from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 # Custom
 from custom.custom_type import JwtToken, CurrentUser
@@ -11,7 +12,6 @@ from .security import (
   authenticate_user,
   generate_verify_url,
   hash_password,
-  is_existing_user,
 )
 from .jwt_setup import (
   create_access_token,
@@ -23,6 +23,7 @@ from .auth_model import UserPublic, UserCreate, LoginRequest, AccessToken
 from core import send_email
 from database.sql_db import get_session
 from database.models import User
+from database.sql_statement import is_existing_user
 
 
 class VerifyResponseMessage(TypedDict):
@@ -113,18 +114,26 @@ def verify_email(
   """verify email using the token link"""
   email: str | None = verify_verification_token(token)
   if not email:
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
+    raise HTTPException(
+      status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token"
+    )
 
-  user: User | None = session.exec(select(User).where(User.email == email)).first()
+  user: User | None = session.execute(
+    statement=select(User).where(User.email == email)
+  ).scalar_one_or_none()
   if not user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
   if user.is_verified:
-    return VerifyResponseMessage(status_code=status.HTTP_401_UNAUTHORIZED ,message="Email already verified")
+    return VerifyResponseMessage(
+      status_code=status.HTTP_401_UNAUTHORIZED, message="Email already verified"
+    )
 
   user.is_verified = True
   session.add(instance=user)
-  return VerifyResponseMessage(status_code=status.HTTP_200_OK ,message="Email verified successfully")
+  return VerifyResponseMessage(
+    status_code=status.HTTP_200_OK, message="Email verified successfully"
+  )
 
 
 __all__ = ("auth_router",)

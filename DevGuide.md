@@ -29,9 +29,12 @@
 
 # External Library
 # Frontend
-- read [svelte-i18n](https://github.com/kaisermann/svelte-i18n/blob/main/docs/Getting%20Started.md) for localization
-- read [svelte-shadcn](https://shadcn-svelte.com/) for UI component library
-- read [Svelte Sonner](https://svelte-sonner.vercel.app/) for the alert notification
-- read [Superforms](https://superforms.rocks/get-started) for Form validation and submission etc
+- localization [svelte-i18n](https://github.com/kaisermann/svelte-i18n/blob/main/docs/Getting%20Started.md)
+- UI component library [svelte-shadcn](https://shadcn-svelte.com/)
+- alert notification [Svelte Sonner](https://svelte-sonner.vercel.app/)
 
 # Backend
+- Sql database [SqlAlchemy](https://docs.sqlalchemy.org/en/20/)
+- Server [fastapi](https://fastapi.tiangolo.com/)
+- encryption [bcybt](https://github.com/pyca/bcrypt)
+- jwt [PyJWT](https://pyjwt.readthedocs.io/en/stable/)

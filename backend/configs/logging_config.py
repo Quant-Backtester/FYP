@@ -29,6 +29,7 @@ class JSONLogFormatter(logging.Formatter):
 
 # Configure root logger
 def setup_logging():
+  """ Json formatter setup """
   Path("logs").mkdir(exist_ok=True)
   handler = TimedRotatingFileHandler(
     filename="logs/app.jsonl",

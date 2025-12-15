@@ -1,7 +1,7 @@
 # STL
 from datetime import datetime, timedelta, timezone
 
-# third party
+# external
 import jwt
 from configs import settings
 
