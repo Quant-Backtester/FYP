@@ -5,14 +5,16 @@ from sqlalchemy.orm import DeclarativeBase, Session
 from configs import settings
 
 engine = create_engine(
-  url=settings.database_url, echo=settings.debug, connect_args={"check_same_thread": False}
+  url=settings.database_url,
+  echo=settings.debug,
+  connect_args={"check_same_thread": False},
 )
 
 sql_session = Session(bind=engine)
 
+
 class Base(DeclarativeBase):
   pass
-
 
 
 def get_session() -> Generator[Session, None, None]:

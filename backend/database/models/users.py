@@ -15,3 +15,6 @@ class User(Base):
   email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
   hashed_password: Mapped[str] = mapped_column(String(255))
   is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+__all__ = ("User", )

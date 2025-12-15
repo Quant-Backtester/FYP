@@ -13,7 +13,8 @@ def get_user_by_username(session: Session, username: str) -> User | None:
 
 
 def is_existing_user(session: Session, username: str, email: str) -> bool:
-  statement = select(User).where((User.username == username) | (User.email == email))
+  """check if the user exist"""
+  statement = select(User).where((User.username == username) & (User.email == email))
   existing_user: User | None = session.execute(statement=statement).scalar_one_or_none()
   return existing_user is not None
 

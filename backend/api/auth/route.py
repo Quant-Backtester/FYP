@@ -23,7 +23,7 @@ from .auth_model import UserPublic, UserCreate, LoginRequest, AccessToken
 from core import send_email
 from database.sql_db import get_session
 from database.models import User
-from database.sql_statement import is_existing_user
+from database.sql_statement import is_existing_user, get_user_by_email
 
 
 class VerifyResponseMessage(TypedDict):
@@ -118,9 +118,7 @@ def verify_email(
       status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token"
     )
 
-  user: User | None = session.execute(
-    statement=select(User).where(User.email == email)
-  ).scalar_one_or_none()
+  user: User | None = get_user_by_email(session=session, email=email)
   if not user:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
