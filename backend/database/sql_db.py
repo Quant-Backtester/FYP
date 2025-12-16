@@ -1,7 +1,11 @@
+#STL
 from typing import Generator
+
+#External
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session
 
+#Custom
 from configs import settings
 
 engine = create_engine(

@@ -1,7 +1,9 @@
 # External
 import bcrypt
+from fastapi import HTTPException, status
 from configs import settings
 from sqlalchemy.orm import Session
+
 
 # Custom
 from database.models import User
@@ -31,13 +33,17 @@ def hash_password(password: str) -> str:
   return hashed.decode(encoding="utf-8")
 
 
-def authenticate_user(session: Session, username: str, password: str) -> User | None:
+def authenticate_user(session: Session, username: str, password: str) -> User:
   """logic for login a user"""
   user = get_user_by_email(session=session, email=username)
   if not user or not _verify_password(
     plain_password=password, hashed_password=user.hashed_password
   ):
-    return None
+    raise HTTPException(
+      status_code=status.HTTP_404_NOT_FOUND,
+      detail="Not found",
+
+    )
   return user
 
 __all__ = ()

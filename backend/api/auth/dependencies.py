@@ -16,13 +16,13 @@ async def get_current_user(
     detail="Could not validate credentials",
     headers={"WWW-Authenticate": "Bearer"},
   )
-
+  
   payload: CurrentUser = jwt.decode(
     jwt=credentials.credentials,
     key=settings.jwt_secret_key,
     algorithms=[settings.algorithm],
   )
-  username: str = payload.get("sub")
+  username: str = payload.get("username")
   email: str = payload.get("email")
   if username is None or email is None:
     raise credentials_exception

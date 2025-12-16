@@ -6,12 +6,17 @@ import jwt
 from configs import settings
 
 # custom
-from custom.custom_type import JwtToken
+from custom.custom_type import JwtToken, VerificationToken
+from custom.custom_enums import PayloadEnum
+from configs import get_logger
 
+
+logger = get_logger()
 
 def create_access_token(data: JwtToken) -> str:
   to_encode = JwtToken(
     sub=data["sub"],
+    username=data["username"],
     email=data["email"],
     exp=datetime.now() + timedelta(minutes=settings.access_token_expire_minutes),
   )
@@ -22,12 +27,14 @@ def create_access_token(data: JwtToken) -> str:
   )
 
 
-def create_verification_token(email: str) -> str:
+def create_verification_token(email: str, username: str) -> str:
   """Create a short-lived token for email verification."""
-  expire = datetime.now(timezone.utc) + timedelta(minutes=30)
+  expire: datetime = datetime.now(timezone.utc) + timedelta(hours=settings.verify_token_expire_hour)
+
+  payload = VerificationToken(username=username, email=email, exp=expire, what=PayloadEnum.VERIFICATION)
 
   return jwt.encode(
-    payload={"sub": email, "exp": expire, "type": "verification"},
+    payload=payload, # type: ignore
     key=settings.jwt_secret_key,
     algorithm=settings.algorithm,
   )
@@ -38,7 +45,8 @@ def verify_verification_token(token: str) -> str | None:
   payload = jwt.decode(
     jwt=token, key=settings.jwt_secret_key, algorithms=[settings.algorithm]
   )
-  if payload.get("type") != "verification":
+  logger.info(payload)
+  if payload.get("what") != PayloadEnum.VERIFICATION:
     return None
   return payload.get("sub")
 
