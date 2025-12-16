@@ -1,7 +1,14 @@
 <script lang="ts">
-	import './layout.css';
-	
-	let { children } = $props();
+  import { Loader } from "svelte-sonner";
+  import { waitLocale } from "svelte-i18n";
+  import "./layout.css";
+  import "../i18n.ts"
+
+  let { children } = $props();
 </script>
 
-{@render children()}
+{#await waitLocale()}
+<Loader visible={true}/>
+{:then}
+  {@render children()}
+{/await}
