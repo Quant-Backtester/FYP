@@ -1,40 +1,40 @@
 # STL
 import os
+from datetime import timedelta
 
 # External
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
-#Custom
+# Custom
 from custom.custom_enums import RequestEnum
+
 
 
 
 class Settings(BaseModel):
   """Config for the server"""
 
-  load_dotenv()
+  load_dotenv(".env", verbose=True)
   # Server
   host: str = "127.0.0.1"
   port: int = 8000
   debug: bool = True
 
-
   # Database
   database_url: str = os.getenv(key="DATABASE_URL", default="sqlite:///./app.db")
 
   # caching
-  redis_host: str = "127.0.0.1"
-  redis_port: int = 6379
-  redis_db: int = 0
+  valkey_url: str = os.getenv(key="VALKEY_URL", default="redis://")
 
-
+  valkey_port: int = 6379
+  valkey_num: int = 0
 
   # Security
   jwt_secret_key: str = os.getenv(key="JWT_SECRET_KEY", default="default")
   algorithm: str = "HS256"
-  access_token_expire_minutes: int = 60
-  verify_token_expire_hour: int = 24
+  access_token_expire_minutes: timedelta = timedelta(minutes=60)
+  verify_token_expire_hour: timedelta = timedelta(hours=24)
 
   # email
   smtp_host: str = os.getenv("SMTP_HOST", "smtp.gmail.com")

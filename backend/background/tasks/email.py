@@ -1,13 +1,18 @@
-# STL
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
-# Custom
+#STL
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
+
+#External
+from celery import Task
+#Custom
+from background.celery_app import celery_worker
 from configs import settings
 
 
-def send_email(to_email: str, subject: str, body: str) -> None:
+@celery_worker.task("send_email")
+def send_email(subject: str, to_email: str, body: str) -> None:
   # For development: just print to console
   if settings.debug:
     print(f"\n EMAIL TO: {to_email}")
@@ -27,4 +32,3 @@ def send_email(to_email: str, subject: str, body: str) -> None:
     server.send_message(msg=msg)
 
 
-__all__ = ("send_email",)

@@ -10,7 +10,6 @@ from database.models import User
 from database.sql_statement import get_user_by_email
 
 
-# Protected method
 def _verify_password(plain_password: str, hashed_password: str) -> bool:
   """Verify a plain password against a hashed one"""
   return bcrypt.checkpw(
@@ -18,7 +17,6 @@ def _verify_password(plain_password: str, hashed_password: str) -> bool:
     hashed_password=hashed_password.encode(encoding="utf-8"),
   )
 
-# Public Method
 def generate_verify_url(host_prefix: str, token: str) -> str:
   verify_url: str = (
     f"http://{settings.host}:{settings.port}{host_prefix}/verify-email?token={token}"

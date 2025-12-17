@@ -4,19 +4,19 @@ from sqlalchemy.orm import Session
 
 # Custom
 from custom.custom_type import JwtToken, CurrentUser, VerifyResponseMessage
-from .security import (
+from utils.security import (
   authenticate_user,
   generate_verify_url,
   hash_password,
 )
-from .jwt_setup import (
+from utils.jwt_setup import (
   create_access_token,
   create_verification_token,
   verify_verification_token,
 )
-from .dependencies import get_current_user
+from dependencies.auth_dependencies import get_current_user
 from .auth_model import UserPublic, UserCreate, LoginRequest, AccessToken
-from background.email import send_email
+from background.tasks import send_email
 from database.sql_db import get_session
 from database.models import User
 from database.sql_statement import is_existing_user, get_user_by_email
@@ -32,15 +32,14 @@ auth_router = APIRouter(prefix="/auth", tags=["Authentication endpoints"])
 )
 def reverify_email(
   user: UserPublic,
-  background_tasks: BackgroundTasks,
   session: Session = Depends(dependency=get_session),
 ) -> VerifyResponseMessage:
-  """ reverify your email if that particular email is not verified """
+  """reverify your email if that particular email is not verified"""
   if not is_existing_user(session=session, username=user.username, email=user.email):
     raise HTTPException(
       status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist"
     )
-  db_user = get_user_by_email(session=session, email=user.email)
+  db_user: User | None = get_user_by_email(session=session, email=user.email)
   if not db_user:
     raise HTTPException(
       status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist"
@@ -52,12 +51,8 @@ def reverify_email(
 
   verify_url: str = generate_verify_url(host_prefix=auth_router.prefix, token=token)
 
-  background_tasks.add_task(
-    func=send_email,
-    to_email=db_user.email,
-    subject="Please Verify your email.",
-    body=f"Click to verify: {verify_url}",
-  )
+  send_email.delay(subject="Verify your email",to_email=db_user.email, body=verify_url)
+
 
   return VerifyResponseMessage(
     status_code=status.HTTP_200_OK, message="message successfully resent!"
