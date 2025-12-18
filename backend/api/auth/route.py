@@ -1,9 +1,11 @@
+# STL
+
 # External
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
 # Custom
-from custom.custom_type import JwtToken, CurrentUser, VerifyResponseMessage
+from custom.custom_type import JwtToken, CurrentUser
 from utils.security import (
   authenticate_user,
   generate_verify_url,
@@ -16,10 +18,15 @@ from utils.jwt_setup import (
 )
 from dependencies.auth_dependencies import get_current_user
 from .auth_model import UserPublic, UserCreate, LoginRequest, AccessToken
-from background.tasks import send_email
+from background.tasks import send_email_task
 from database.sql_db import get_session
 from database.models import User
 from database.sql_statement import is_existing_user, get_user_by_email
+from custom.custom_exception import (
+  InvalidCredentialsError,
+  NotFoundError,
+  ConflictError,
+)
 
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication endpoints"])
@@ -27,36 +34,29 @@ auth_router = APIRouter(prefix="/auth", tags=["Authentication endpoints"])
 
 @auth_router.post(
   path="/send-again",
-  response_model=VerifyResponseMessage,
   status_code=status.HTTP_200_OK,
 )
 def reverify_email(
   user: UserPublic,
   session: Session = Depends(dependency=get_session),
-) -> VerifyResponseMessage:
+) -> Response:
   """reverify your email if that particular email is not verified"""
-  if not is_existing_user(session=session, username=user.username, email=user.email):
-    raise HTTPException(
-      status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist"
-    )
   db_user: User | None = get_user_by_email(session=session, email=user.email)
   if not db_user:
-    raise HTTPException(
-      status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist"
-    )
+    raise NotFoundError(message="User not found")
+
   if db_user.is_verified:
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
   token: str = create_verification_token(email=db_user.email, username=db_user.username)
 
   verify_url: str = generate_verify_url(host_prefix=auth_router.prefix, token=token)
 
-  send_email.delay(subject="Verify your email",to_email=db_user.email, body=verify_url)
-
-
-  return VerifyResponseMessage(
-    status_code=status.HTTP_200_OK, message="message successfully resent!"
+  send_email_task.delay(
+    subject="Reverify you email", to_email=db_user.email, body=verify_url
   )
+
+  return Response(content="Please check your email", status_code=status.HTTP_200_OK)
 
 
 @auth_router.post(
@@ -64,16 +64,12 @@ def reverify_email(
 )
 def register(
   user: UserCreate,
-  background_tasks: BackgroundTasks,
   session: Session = Depends(dependency=get_session),
 ) -> UserPublic:
   """register a new user, it will also send a verification token through email"""
 
   if is_existing_user(session=session, username=user.username, email=user.email):
-    raise HTTPException(
-      status_code=status.HTTP_400_BAD_REQUEST,
-      detail="Username or email already registered",
-    )
+    raise ConflictError(message="user already exist")
 
   db_user = User(
     username=user.username,
@@ -87,12 +83,10 @@ def register(
 
   verify_url: str = generate_verify_url(host_prefix=auth_router.prefix, token=token)
 
-  background_tasks.add_task(
-    func=send_email,
-    to_email=db_user.email,
-    subject="Please Verify your email.",
-    body=f"Click to verify: {verify_url}",
+  send_email_task.delay(
+    subject="Verify your email", to_email=db_user.email, body=verify_url
   )
+
   return UserPublic(username=user.username, email=user.email)
 
 
@@ -106,23 +100,13 @@ def login(
   user: User = authenticate_user(
     session=session, username=form_data.email, password=form_data.password
   )
-  if not user:
-    raise HTTPException(
-      status_code=status.HTTP_401_UNAUTHORIZED,
-      detail="Incorrect username or password",
-      headers={"WWW-Authenticate": "Bearer"},
-    )
-  if not user.is_verified:
-    raise HTTPException(
-      status_code=status.HTTP_403_FORBIDDEN,
-      detail="Email not verified. Please check your inbox.",
-    )
+  if not user or not user.is_verified:
+    raise InvalidCredentialsError(message="Invalid Credentials")
 
   token_data = JwtToken(username=user.username, email=user.email, sub=user.id)
-
   access_token: str = create_access_token(data=token_data)
 
-  return AccessToken(access_token=access_token, token_type="bearer")
+  return AccessToken(token_type="bearer", access_token=access_token)
 
 
 @auth_router.get(path="/me", response_model=UserPublic, status_code=status.HTTP_200_OK)
@@ -135,28 +119,20 @@ def read_users_me(
 @auth_router.get(path="/verify-email", status_code=status.HTTP_200_OK)
 def verify_email(
   token: str, session: Session = Depends(dependency=get_session)
-) -> VerifyResponseMessage:
+) -> Response:
   """verify email using the token link"""
-  email: str | None = verify_verification_token(token=token)
-  if not email:
-    raise HTTPException(
-      status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token"
-    )
+  email: str = verify_verification_token(token=token)
 
   user: User | None = get_user_by_email(session=session, email=email)
   if not user:
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    raise NotFoundError(message="User not found")
 
   if user.is_verified:
-    return VerifyResponseMessage(
-      status_code=status.HTTP_400_BAD_REQUEST, message="Email already verified"
-    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
   user.is_verified = True
   session.add(instance=user)
-  return VerifyResponseMessage(
-    status_code=status.HTTP_200_OK, message="Email verified successfully"
-  )
+  return Response(status_code=status.HTTP_200_OK, content="Email verified successfully")
 
 
 __all__ = ("auth_router",)

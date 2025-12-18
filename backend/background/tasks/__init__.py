@@ -1,6 +1,6 @@
-from .email import send_email
+from .email import send_email_task
 
 
 __all__ = (
-  "send_email",
+  "send_email_task",
 )

@@ -28,13 +28,9 @@ class VerificationToken(TypedDict):
   what: Required[PayloadEnum]
 
 
-class VerifyResponseMessage(TypedDict):
-  message: str
-  status_code: int
 
 __all__ = (
   "JwtToken",
   "CurrentUser",
   "VerificationToken",
-  "VerifyResponseMessage",
 )

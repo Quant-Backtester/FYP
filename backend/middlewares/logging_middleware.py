@@ -73,7 +73,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
   def _scrub_headers(self, headers: dict[str, str]) -> dict[str, str]:
     return {
-      k: "***" if k.lower() in settings.SENSITIVE_HEADERS else v
+      k: "***" if k.lower() in settings.sensitive_headers else v
       for k, v in headers.items()
     }
 
@@ -86,7 +86,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     data = json.loads(body)
     if isinstance(data, dict):
       return {
-        k: "***" if k.lower() in settings.SENSITIVE_BODY_FIELDS else v
+        k: "***" if k.lower() in settings.sensitive_body_fields else v
         for k, v in data.items()
       }
     return data
@@ -100,7 +100,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
       return "<invalid type>"
 
     body = await request.body()
-    if len(body) > settings.MAX_BODY_LOG_SIZE:
+    if len(body) > settings.max_body_log_size:
       return "<body too large>"
     request._body = body
     return body

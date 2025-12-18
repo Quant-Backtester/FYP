@@ -1,11 +1,10 @@
-from .auth_type import JwtToken, CurrentUser, VerificationToken, VerifyResponseMessage
+from .auth_type import JwtToken, CurrentUser, VerificationToken
 from .logging_type import LoggingType, HttpErrorLog, HttpRequestLog, HttpResponseLog
 
 
 __all__ = (
   "JwtToken",
   "VerificationToken",
-  "VerifyResponseMessage",
   "CurrentUser",
   "LoggingType",
   "HttpErrorLog",

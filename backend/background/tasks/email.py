@@ -1,17 +1,17 @@
-
-#STL
+# STL
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
+from typing import cast
 
-#External
+# External
 from celery import Task
-#Custom
+# Custom
 from background.celery_app import celery_worker
 from configs import settings
 
 
-@celery_worker.task("send_email")
+@celery_worker.task()
 def send_email(subject: str, to_email: str, body: str) -> None:
   # For development: just print to console
   if settings.debug:
@@ -32,3 +32,6 @@ def send_email(subject: str, to_email: str, body: str) -> None:
     server.send_message(msg=msg)
 
 
+
+
+send_email_task: Task = cast(Task, send_email)

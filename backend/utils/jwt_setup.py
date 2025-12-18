@@ -1,5 +1,5 @@
 # STL
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # external
 import jwt
@@ -19,7 +19,7 @@ def create_access_token(data: JwtToken) -> str:
     sub=data["sub"],
     username=data["username"],
     email=data["email"],
-    exp=datetime.now() + settings.access_token_expire_minutes,
+    exp=datetime.now() + timedelta(minutes=settings.access_token_expire_minutes),
   )
   return jwt.encode(
     payload=to_encode,  # type: ignore
@@ -30,7 +30,7 @@ def create_access_token(data: JwtToken) -> str:
 
 def create_verification_token(email: str, username: str) -> str:
   """Create a short-lived token for email verification."""
-  expire: datetime = datetime.now() + settings.verify_token_expire_hour
+  expire: datetime = datetime.now() + timedelta(hours=settings.verify_token_expire_hour)
 
   payload = VerificationToken(
     username=username, email=email, exp=expire, what=PayloadEnum.VERIFICATION
@@ -43,14 +43,16 @@ def create_verification_token(email: str, username: str) -> str:
   )
 
 
-def verify_verification_token(token: str) -> str | None:
+def verify_verification_token(token: str) -> str:
   """Return email if valid, None otherwise."""
   payload = jwt.decode(
     jwt=token, key=settings.jwt_secret_key, algorithms=[settings.algorithm]
   )
-  if payload.get("what") != PayloadEnum.VERIFICATION:
-    return None
-  return payload.get("sub")
+
+  email =  payload.get("sub")
+  if not email:
+    raise jwt.InvalidTokenError()
+  return email
 
 
 __all__ = ()

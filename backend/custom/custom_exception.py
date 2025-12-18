@@ -6,7 +6,7 @@ from .custom_enums import ExceptionEnum
 
 
 class AppError(Exception):
-  status_code = status.HTTP_400_BAD_REQUEST
+  status_code: int = status.HTTP_400_BAD_REQUEST
   error_code: ExceptionEnum = ExceptionEnum.APP_ERROR
 
   def __init__(self, message: str | None = None):
@@ -14,7 +14,11 @@ class AppError(Exception):
     super().__init__(self.message)
 
 
-class NotFoundException(AppError):
+class InvalidCredentialsError(AppError):
+  status_code:int = status.HTTP_401_UNAUTHORIZED
+  error_code: ExceptionEnum = ExceptionEnum.INVALID_CREDENTIALS
+
+class NotFoundError(AppError):
   status_code = status.HTTP_404_NOT_FOUND
   error_code: ExceptionEnum = ExceptionEnum.NOT_FOUND
 
