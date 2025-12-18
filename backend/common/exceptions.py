@@ -1,8 +1,9 @@
-#External
+# External
+from typing import Literal
 from fastapi import status
 
-#Custom
-from .custom_enums import ExceptionEnum
+# Custom
+from .enums import ExceptionEnum
 
 
 class AppError(Exception):
@@ -15,23 +16,24 @@ class AppError(Exception):
 
 
 class InvalidCredentialsError(AppError):
-  status_code:int = status.HTTP_401_UNAUTHORIZED
+  status_code: Literal[401] = status.HTTP_401_UNAUTHORIZED
   error_code: ExceptionEnum = ExceptionEnum.INVALID_CREDENTIALS
 
+
 class NotFoundError(AppError):
-  status_code = status.HTTP_404_NOT_FOUND
+  status_code: Literal[404] = status.HTTP_404_NOT_FOUND
   error_code: ExceptionEnum = ExceptionEnum.NOT_FOUND
 
 
 class ConflictError(AppError):
-  status_code = status.HTTP_409_CONFLICT
+  status_code: Literal[409] = status.HTTP_409_CONFLICT
   error_code: ExceptionEnum = ExceptionEnum.CONFLICT
 
 
 class TokenError(AppError):
-    status_code = status.HTTP_400_BAD_REQUEST
-    error_code = ExceptionEnum.INVALID_TOKEN
+  status_code: Literal[400] = status.HTTP_400_BAD_REQUEST
+  error_code: ExceptionEnum = ExceptionEnum.INVALID_TOKEN
 
 
 class TokenExpiredError(TokenError):
-    error_code = ExceptionEnum.TOKEN_EXPIRED
+  error_code: ExceptionEnum = ExceptionEnum.TOKEN_EXPIRED

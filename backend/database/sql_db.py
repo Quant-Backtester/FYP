@@ -1,11 +1,11 @@
-#STL
+# STL
 from typing import Generator
 
-#External
+# External
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session
 
-#Custom
+# Custom
 from configs import settings
 
 engine = create_engine(
@@ -32,4 +32,4 @@ def get_session() -> Generator[Session, None, None]:
       raise
 
 
-__all__ = ("get_session", "engine")
+

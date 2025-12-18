@@ -9,8 +9,9 @@ from configs import settings, setup_logging
 from database.sql_db import engine
 from middlewares import LoggingMiddleware
 from api.auth import auth_router
-from custom.custom_handler import app_error_handler
-from custom.custom_exception import AppError
+from common.exception_handlers import app_error_handler
+from common.exceptions import AppError
+
 
 def register_middleawre(app: FastAPI) -> None:
   app.add_middleware(
@@ -34,7 +35,8 @@ def register_routes(app: FastAPI) -> None:
 
 def register_exception_handler(app: FastAPI) -> None:
   app.add_exception_handler(
-    exc_class_or_status_code=AppError, handler=app_error_handler # type: ignore
+    exc_class_or_status_code=AppError,
+    handler=app_error_handler,  # type: ignore
   )
 
 
@@ -47,7 +49,6 @@ def create_app() -> FastAPI:
   register_routes(app=app)
 
   return app
-
 
 
 if __name__ == "__main__":

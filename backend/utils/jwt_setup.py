@@ -66,4 +66,3 @@ def verify_verification_token(token: str) -> str:
   return email
 
 
-__all__ = ()

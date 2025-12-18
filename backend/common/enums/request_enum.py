@@ -10,9 +10,5 @@ class RequestEnum(UpperStrEnum):
   PUT = auto()
   HEADER = auto()
   OPTIONS = auto()
-  
-  
-  
-__all__ = (
-  "RequestEnum",
-)
+
+

@@ -5,7 +5,18 @@ from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 # Custom
-from custom.custom_type import LoggingType
+from typing import NotRequired, TypedDict
+
+
+class LoggingType(TypedDict):
+  timestamp: str
+  level: str
+  logger: str
+  module: str
+  function: str
+  line: int
+  message: str
+  exception: NotRequired[str]
 
 
 # Custom formatter that outputs JSON
@@ -29,7 +40,7 @@ class JSONLogFormatter(logging.Formatter):
 
 # Configure root logger
 def setup_logging():
-  """ Json formatter setup """
+  """Json formatter setup"""
   Path("logs").mkdir(exist_ok=True)
   handler = TimedRotatingFileHandler(
     filename="logs/app.jsonl",

@@ -16,8 +16,8 @@ from starlette.types import ASGIApp
 
 # Custom
 from configs import get_logger, settings
-from custom.custom_type import HttpResponseLog, HttpRequestLog, HttpErrorLog
-from custom.custom_enums import EventEnum, RequestEnum
+from .logging_types import HttpResponseLog, HttpRequestLog, HttpErrorLog
+from common.enums import EventEnum, RequestEnum
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
@@ -152,5 +152,3 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
     logger.exception(log_data)
 
-
-__all__ = ("LoggingMiddleware",)

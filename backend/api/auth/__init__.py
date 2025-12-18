@@ -1,5 +1,1 @@
-from .route import auth_router
-
-__all__ = (
-  "auth_router",
-)
+from .route import auth_router as auth_router

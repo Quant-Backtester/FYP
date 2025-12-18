@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi import Request
 
 # Custom
-from .custom_exception import AppError
+from .exceptions import AppError
 
 
 def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
@@ -17,4 +17,3 @@ def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
   )
 
 
-__all__ = ("app_error_handler",)

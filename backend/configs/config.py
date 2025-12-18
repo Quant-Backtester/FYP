@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
 # Custom
-from custom.custom_enums import RequestEnum
+from common.enums import RequestEnum
 
 
 class Settings(BaseSettings):

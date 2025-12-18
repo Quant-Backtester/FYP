@@ -6,7 +6,3 @@ class PayloadEnum(UpperStrEnum):
   """ The JWT might used for different purpose? """
   VERIFICATION = auto()
 
-
-__all__ = (
-  "PayloadEnum",
-)
