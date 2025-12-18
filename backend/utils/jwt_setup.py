@@ -3,11 +3,13 @@ from datetime import datetime, timedelta
 
 # external
 import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
 from configs import settings
 
 # custom
 from custom.custom_type import JwtToken, VerificationToken
 from custom.custom_enums import PayloadEnum
+from custom.custom_exception import TokenError, TokenExpiredError
 from configs import get_logger
 
 
@@ -33,7 +35,7 @@ def create_verification_token(email: str, username: str) -> str:
   expire: datetime = datetime.now() + timedelta(hours=settings.verify_token_expire_hour)
 
   payload = VerificationToken(
-    username=username, email=email, exp=expire, what=PayloadEnum.VERIFICATION
+    sub=username, email=email, exp=expire, what=PayloadEnum.VERIFICATION
   )
 
   return jwt.encode(
@@ -44,14 +46,23 @@ def create_verification_token(email: str, username: str) -> str:
 
 
 def verify_verification_token(token: str) -> str:
-  """Return email if valid, None otherwise."""
-  payload = jwt.decode(
-    jwt=token, key=settings.jwt_secret_key, algorithms=[settings.algorithm]
-  )
+  try:
+    payload = jwt.decode(
+      jwt=token,
+      key=settings.jwt_secret_key,
+      algorithms=[settings.algorithm],
+      options={"require": ["sub"]},
+    )
+  except ExpiredSignatureError as e:
+    raise TokenExpiredError(message="Verification token expired") from e
+  except InvalidTokenError as e:
+    raise TokenError(message="Invalid verification token") from e
 
-  email =  payload.get("sub")
-  if not email:
-    raise jwt.InvalidTokenError()
+  email = payload.get("sub")
+
+  if not isinstance(email, str) or not email:
+    raise TokenError(message="Invalid verification token")
+
   return email
 
 

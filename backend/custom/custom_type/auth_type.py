@@ -22,7 +22,7 @@ class CurrentUser(TypedDict):
 
 class VerificationToken(TypedDict):
   """ Token for verification (or other) """
-  username: Required[str]
+  sub: Required[str]
   email: Required[str]
   exp: Required[datetime]
   what: Required[PayloadEnum]

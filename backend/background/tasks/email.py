@@ -8,16 +8,17 @@ from typing import cast
 from celery import Task
 # Custom
 from background.celery_app import celery_worker
-from configs import settings
+from configs import settings, get_logger
 
+logger = get_logger()
 
 @celery_worker.task()
 def send_email(subject: str, to_email: str, body: str) -> None:
-  # For development: just print to console
+  # For development: just logger.info to console
   if settings.debug:
-    print(f"\n EMAIL TO: {to_email}")
-    print(f"SUBJECT: {subject}")
-    print(f"BODY:\n{body}\n")
+    logger.info(f"\n EMAIL TO: {to_email}")
+    logger.info(f"SUBJECT: {subject}")
+    logger.info(f"BODY:\n{body}\n")
     return
 
   # Production: use real SMTP (need an actual email)

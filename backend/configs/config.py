@@ -20,7 +20,7 @@ class Settings(BaseSettings):
   database_url: str = "sqlite:///./app.db"
 
   # caching
-  valkey_url: str = "redis://"
+  valkey_scheme: str = "redis://"
   valkey_host: str = "127.0.0.1"
 
   valkey_port: int = 6379

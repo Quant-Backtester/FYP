@@ -11,3 +11,5 @@ class ExceptionEnum(UpperStrEnum):
   CONFLICT = auto()
   ALREADY_EXIST = auto()
   INVALID_CREDENTIALS = auto()
+  INVALID_TOKEN = auto()
+  TOKEN_EXPIRED = auto()

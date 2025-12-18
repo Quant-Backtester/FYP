@@ -26,3 +26,12 @@ class NotFoundError(AppError):
 class ConflictError(AppError):
   status_code = status.HTTP_409_CONFLICT
   error_code: ExceptionEnum = ExceptionEnum.CONFLICT
+
+
+class TokenError(AppError):
+    status_code = status.HTTP_400_BAD_REQUEST
+    error_code = ExceptionEnum.INVALID_TOKEN
+
+
+class TokenExpiredError(TokenError):
+    error_code = ExceptionEnum.TOKEN_EXPIRED
