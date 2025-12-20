@@ -1,17 +1,6 @@
 from typing import Literal, TypedDict, NotRequired, Required
 
 
-class LoggingType(TypedDict):
-  timestamp: str
-  level: str
-  logger: str
-  module: str
-  function: str
-  line: int
-  message: str
-  exception: NotRequired[str]
-
-
 class HttpRequestLog[T](TypedDict):
   msg: Literal["HTTP Request"]
   event: str
@@ -43,4 +32,3 @@ class HttpErrorLog(TypedDict):
   request_id: NotRequired[str]
 
 
-__all__ = ("LoggingType", "HttpErrorLog", "HttpRequestLog", "HttpResponseLog")

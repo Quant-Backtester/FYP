@@ -1,77 +1,102 @@
 # STL
-import os
 
 # External
-from dotenv import load_dotenv
-from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, computed_field
 
-#Custom
-from custom.custom_enums import RequestEnum
+# Custom
+from common.enums import RequestEnum
 
 
-
-class Settings(BaseModel):
+class Settings(BaseSettings):
   """Config for the server"""
 
-  load_dotenv()
+  model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
   # Server
-  host: str = "127.0.0.1"
-  port: int = 8000
-  debug: bool = True
-
+  host: str = Field(default="localhost")
+  port: int = Field(default=8000)
+  debug: bool = Field(default=False)
 
   # Database
-  database_url: str = os.getenv(key="DATABASE_URL", default="sqlite:///./app.db")
+  database: str = Field(default="appdb")
+  database_password: str = Field(default="dbadmin")
+  database_username: str = Field(default="dbuser")
+  database_host: str = Field(default="localhost")
+  database_port: int = Field(default=5431)
+  database_driver: str = Field(default="postgresql+psycopg2")
+
+  @computed_field
+  @property
+  def database_url(self) -> str:
+    return (
+      f"{self.database_driver}://"
+      f"{self.database_username}:"
+      f"{self.database_password}@"
+      f"{self.database_host}:"
+      f"{self.database_port}/"
+      f"{self.database}"
+    )
 
   # caching
-  redis_host: str = "127.0.0.1"
-  redis_port: int = 6379
-  redis_db: int = 0
+  valkey_scheme: str = Field(default="redit")
+  valkey_host: str = Field(default="localhost")
+  valkey_port: int = Field(default=6379)
+  valkey_db: int = Field(default=0)
 
-
+  @computed_field
+  @property
+  def valkey_url(self) -> str:
+    return (
+      f"{self.valkey_scheme}://{self.valkey_host}:{self.valkey_port}/{self.valkey_db}"
+    )
 
   # Security
-  jwt_secret_key: str = os.getenv(key="JWT_SECRET_KEY", default="default")
-  algorithm: str = "HS256"
-  access_token_expire_minutes: int = 60
-  verify_token_expire_hour: int = 24
+  jwt_secret_key: str = Field(default="123")
+  algorithm: str = Field(default="HS256")
+  access_token_expire_hour: int = Field(default=24)
+
+  remember_me_expire_day: int = Field(default=30)
 
   # email
-  smtp_host: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
-  smtp_port: int = int(os.getenv("SMTP_PORT", "465"))
-  smtp_user: str = os.getenv("SMTP_USER", "")
-  smtp_password: str = os.getenv("SMTP_PASSWORD", "")
+  smtp_host: str = Field(default="smtp.gmail.com")
+  smtp_port: int = Field(default=456)
+  smtp_user: str = Field(default="test@gmail.com")
+  smtp_password: str = Field(default="12345")
 
-  allowed_origin: list[str] = [
-    "http://localhost:5173",
-  ]
-  allow_methods: list[str] = [method.value for method in RequestEnum]
-  allow_headers: list[str] = ["*"]
+  allowed_origin: list[str] = Field(default=["http://localhost:5173"])
+
+  allowed_methods: list[str] = Field(
+    default_factory=lambda: [method.value for method in RequestEnum]
+  )
+
+  allowed_headers: list[str] = Field(
+    default=["*"]
+  )
 
   # Header fields
-  MAX_BODY_LOG_SIZE: int = 1024 * 1024
+  max_body_log_size: int = Field(default=1024*1024)
 
-  SENSITIVE_HEADERS: set[str] = {
-    "authorization",
-    "cookie",
-    "set-cookie",
-    "x-api-key",
-    "x-auth-token",
-    "proxy-authorization",
-  }
-  SENSITIVE_BODY_FIELDS: set[str] = {
-    "password",
-    "token",
-    "access_token",
-    "refresh_token",
-    "credit_card",
-    "cvv",
-    "ssn",
-    "secret",
-  }
+  sensitive_headers: list[str] = Field(
+    default=[
+      "password",
+      "token",
+      "access_token",
+      "refresh_token",
+      "credit_card",
+      "cvv",
+      "ssn",
+      "secret",
+    ]
+  )
+  sensitive_body_fields: list[str] = Field(
+    default=[
+      "authorization",
+      "cookie",
+      "set-cookie",
+      "x-api-key",
+      "x-auth-token",
+      "proxy-authorization",
+    ]
+  )
 
-  class Config:
-    env_file = ".env"
 
-
-__all__ = ("Settings",)

@@ -29,6 +29,7 @@
 ## External Library
 
 - ### Others
+
   - Caching [Valkey](https://valkey.io/)
 
 - ### Frontend
@@ -47,3 +48,19 @@
   - jwt [PyJWT](https://pyjwt.readthedocs.io/en/stable/)
   - Background task [Celery](https://docs.celeryq.dev/en/main/getting-started/introduction.html)
   - Caching [Valkey-py](https://valkey-py.readthedocs.io/en/latest/)
+
+### Rules
+
+#### Python file
+
+Never:
+
+```py
+from package import *
+```
+
+Always:
+```py
+from package import funcA, funcB, ...
+from package.subpackage import FuncA, FuncB, ...
+```

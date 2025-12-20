@@ -1,4 +1,5 @@
 # STL
+from enum import StrEnum, auto
 from logging import Logger, LoggerAdapter
 import time
 import uuid
@@ -16,8 +17,14 @@ from starlette.types import ASGIApp
 
 # Custom
 from configs import get_logger, settings
-from custom.custom_type import HttpResponseLog, HttpRequestLog, HttpErrorLog
-from custom.custom_enums import EventEnum, RequestEnum
+from .logging_types import HttpResponseLog, HttpRequestLog, HttpErrorLog
+from common.enums import RequestEnum
+
+
+class EventEnum(StrEnum):
+  REQUEST = auto()
+  RESPONSE = auto()
+  ERROR = auto()
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
@@ -73,7 +80,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
   def _scrub_headers(self, headers: dict[str, str]) -> dict[str, str]:
     return {
-      k: "***" if k.lower() in settings.SENSITIVE_HEADERS else v
+      k: "***" if k.lower() in settings.sensitive_headers else v
       for k, v in headers.items()
     }
 
@@ -86,7 +93,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     data = json.loads(body)
     if isinstance(data, dict):
       return {
-        k: "***" if k.lower() in settings.SENSITIVE_BODY_FIELDS else v
+        k: "***" if k.lower() in settings.sensitive_body_fields else v
         for k, v in data.items()
       }
     return data
@@ -100,7 +107,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
       return "<invalid type>"
 
     body = await request.body()
-    if len(body) > settings.MAX_BODY_LOG_SIZE:
+    if len(body) > settings.max_body_log_size:
       return "<body too large>"
     request._body = body
     return body
@@ -151,6 +158,3 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     )
 
     logger.exception(log_data)
-
-
-__all__ = ("LoggingMiddleware",)
