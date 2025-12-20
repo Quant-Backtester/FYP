@@ -59,7 +59,7 @@ def setup_logging():
 
 
 # Helper to get logger with request_id
-def get_logger(request_id: str | None = None):
+def get_logger(request_id: str | None = None) -> logging.Logger | logging.LoggerAdapter:
   """Use this for all the printing"""
   logger = logging.getLogger()
   if request_id:
@@ -67,4 +67,3 @@ def get_logger(request_id: str | None = None):
   return logger
 
 
-__all__ = ("setup_logging", "get_logger")

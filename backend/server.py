@@ -4,9 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 # Custom
-from database.sql_db import Base
+from database.make_db import Base, engine
 from configs import settings, setup_logging
-from database.sql_db import engine
 from middlewares import LoggingMiddleware
 from api.auth import auth_router
 from common.exception_handlers import app_error_handler

@@ -7,7 +7,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.dialects.postgresql import UUID
 
 # Custom
-from database.sql_db import Base
+from database.make_db import Base
 
 
 class User(Base):
@@ -19,4 +19,3 @@ class User(Base):
   is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
-__all__ = ("User", )

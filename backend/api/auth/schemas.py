@@ -2,6 +2,9 @@
 from typing import Literal
 from pydantic import BaseModel, EmailStr
 
+# Custom
+from common.enums import PayloadEnum
+
 
 class LoginRequest(BaseModel):
   email: str
@@ -21,19 +24,17 @@ class UserPublic(BaseModel):
 
 
 class AccessToken(BaseModel):
-  access_token: str
   token_type: Literal["bearer"]
+  access_token: str
+
 
 class CurrentUser(BaseModel):
   username: str
   email: EmailStr
 
+
 class JwtToken(BaseModel):
   sub: str
-  username: str
-  email: EmailStr
   exp: int | None = None
   iat: int
-
-
-
+  what: PayloadEnum

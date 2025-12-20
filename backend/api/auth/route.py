@@ -1,32 +1,34 @@
 # STL
 
 # External
-from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
 # Custom
-from utils.security import (
+from .security import (
   authenticate_user,
   generate_verify_url,
-  hash_password,
-)
-from utils.jwt_setup import (
-  create_access_token,
-  create_verification_token,
-  verify_verification_token,
 )
 from .dependencies import get_current_user
-from .schemas import CurrentUser, JwtToken, UserPublic, UserCreate, LoginRequest, AccessToken
+from .schemas import (
+  CurrentUser,
+  JwtToken,
+  UserPublic,
+  UserCreate,
+  LoginRequest,
+  AccessToken,
+)
 from background.tasks import send_email_task
-from database.sql_db import get_session
+from database.make_db import get_session
 from database.models import User
-from database.sql_statement import is_existing_user, get_user_by_email
+from .repositories import is_existing_user, get_user_by_email
 from common.exceptions import (
   InvalidCredentialsError,
   NotFoundError,
   ConflictError,
 )
+from .service import create_jwt_token, verify_jwt_token, get_time_tuple, register_user
+from common.enums import PayloadEnum
 
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication endpoints"])
@@ -40,7 +42,7 @@ def reverify_email(
   user: UserPublic,
   session: Session = Depends(dependency=get_session),
 ) -> Response:
-  """reverify your email if that particular email is not verified"""
+  """reverify your email if the token expired"""
   db_user: User | None = get_user_by_email(session=session, email=user.email)
   if not db_user:
     raise NotFoundError(message="User not found")
@@ -48,7 +50,14 @@ def reverify_email(
   if db_user.is_verified:
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-  token: str = create_verification_token(email=db_user.email, username=db_user.username)
+  now, exp = get_time_tuple(rememberMe=False)
+  data = JwtToken(
+    sub=str(db_user.id),
+    what=PayloadEnum.VERIFICATION,
+    exp=exp,
+    iat=now,
+  )
+  token: str = create_jwt_token(data=data)
 
   verify_url: str = generate_verify_url(host_prefix=auth_router.prefix, token=token)
 
@@ -69,15 +78,18 @@ def register(
   if is_existing_user(session=session, username=user.username, email=user.email):
     raise ConflictError(message="user already exist")
 
-  db_user = User(
-    username=user.username,
-    email=user.email,
-    hashed_password=hash_password(password=user.password),
-  )
-  session.add(instance=db_user)
-  session.flush()
+  now, exp = get_time_tuple(rememberMe=False)
 
-  token: str = create_verification_token(email=db_user.email, username=db_user.username)
+  db_user: User = register_user(
+    session=session, username=user.username, email=user.email, password=user.password
+  )
+  data = JwtToken(
+    sub=str(db_user.id),
+    what=PayloadEnum.VERIFICATION,
+    exp=exp,
+    iat=now,
+  )
+  token: str = create_jwt_token(data=data)
 
   verify_url: str = generate_verify_url(host_prefix=auth_router.prefix, token=token)
 
@@ -104,11 +116,11 @@ def login(
   if not user or not user.is_verified:
     raise InvalidCredentialsError(message="Invalid Credentials")
 
-  if form_data.rememberMe:
-    exp = datetime.now() + timedelta(days=30)
-  else:
-    exp = datetime.now() + timedelta(hours=)
-  access_token: str = create_access_token(data=token_data)
+  now, exp = get_time_tuple(rememberMe=form_data.rememberMe)
+
+  token_data = JwtToken(exp=exp, iat=now, sub=str(user.id), what=PayloadEnum.LOGIN)
+
+  access_token: str = create_jwt_token(data=token_data)
 
   return AccessToken(token_type="bearer", access_token=access_token)
 
@@ -125,7 +137,7 @@ def verify_email(
   token: str, session: Session = Depends(dependency=get_session)
 ) -> Response:
   """verify email using the token link"""
-  email: str = verify_verification_token(token=token)
+  email: str = verify_jwt_token(token=token)
 
   user: User | None = get_user_by_email(session=session, email=email)
   if not user:
@@ -137,6 +149,3 @@ def verify_email(
   user.is_verified = True
   session.add(instance=user)
   return Response(status_code=status.HTTP_200_OK, content="Email verified successfully")
-
-
-__all__ = ("auth_router",)

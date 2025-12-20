@@ -1,4 +1,5 @@
 # STL
+from enum import StrEnum, auto
 from logging import Logger, LoggerAdapter
 import time
 import uuid
@@ -17,7 +18,13 @@ from starlette.types import ASGIApp
 # Custom
 from configs import get_logger, settings
 from .logging_types import HttpResponseLog, HttpRequestLog, HttpErrorLog
-from common.enums import EventEnum, RequestEnum
+from common.enums import RequestEnum
+
+
+class EventEnum(StrEnum):
+  REQUEST = auto()
+  RESPONSE = auto()
+  ERROR = auto()
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
@@ -151,4 +158,3 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     )
 
     logger.exception(log_data)
-

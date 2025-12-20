@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 # Custom
 from configs import settings
 from database.models import User
-from database.sql_statement import get_user_by_email
-from custom.custom_exception import InvalidCredentialsError
+from .repositories import get_user_by_email
+from common.exceptions import InvalidCredentialsError
 
 
 def _verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -40,5 +40,3 @@ def authenticate_user(session: Session, email: str, password: str) -> User:
   ):
     raise InvalidCredentialsError(message="unknown user")
   return user
-
-

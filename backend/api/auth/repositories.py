@@ -1,4 +1,4 @@
-#STL
+# STL
 from warnings import deprecated
 
 # External
@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 # Custom
-from .models import User
+from database.models import User
+
 
 @deprecated("use get_user_by_email instead")
 def get_user_by_username(session: Session, username: str) -> User | None:
@@ -27,3 +28,11 @@ def get_user_by_email(session: Session, email: str) -> User | None:
   statement = select(User).where(User.email == email)
   result = session.execute(statement=statement).scalar_one_or_none()
   return result
+
+
+def check_user_id(session: Session, user_id: str) -> bool:
+  statement = select(User).where(User.id == user_id)
+  result = session.execute(statement=statement).scalar_one_or_none()
+  if result is None or result.is_verified is False:
+    return False
+  return True

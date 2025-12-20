@@ -2,7 +2,7 @@
 
 # External
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from pydantic import Field, computed_field
 
 # Custom
 from common.enums import RequestEnum
@@ -11,34 +11,63 @@ from common.enums import RequestEnum
 class Settings(BaseSettings):
   """Config for the server"""
 
+  model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
   # Server
-  host: str = "127.0.0.1"
-  port: int = 8000
+  host: str
+  port: int
   debug: bool = True
 
   # Database
-  database_url: str = "sqlite:///./app.db"
+  database: str
+  database_password: str
+  database_username: str
+  database_host: str
+  database_port: int
+  database_driver: str
+
+  @computed_field
+  @property
+  def database_url(self) -> str:
+    return (
+      f"{self.database_driver}://"
+      f"{self.database_username}:"
+      f"{self.database_password}@"
+      f"{self.database_host}:"
+      f"{self.database_port}/"
+      f"{self.database}"
+    )
 
   # caching
-  valkey_scheme: str = "redis://"
-  valkey_host: str = "127.0.0.1"
+  valkey_scheme: str
+  valkey_host: str
 
-  valkey_port: int = 6379
-  valkey_db: int = 0
+  valkey_port: int
+  valkey_db: int
+
+  
+
+  @computed_field
+  @property
+  def valkey_url(self) -> str:
+    return f"{self.valkey_scheme}://{self.valkey_host}:{self.valkey_port}/{self.valkey_db}"
 
   # Security
-  jwt_secret_key: str = "1234"
-  algorithm: str = "HS256"
-  access_token_expire_minutes: int = 60
-  verify_token_expire_hour: int = 24
+  jwt_secret_key: str
+  algorithm: str
+  access_token_expire_hour:str
+
+  @property
+  def access_token_expire_hour(self,) -> int:
+    return int()
+  remember_me_expire_day: int
 
   # email
-  smtp_host: str = "smtp.gmail.com"
-  smtp_port: int = 465
-  smtp_user: str = ""
-  smtp_password: str = ""
+  smtp_host: str
+  smtp_port: int
+  smtp_user: str
+  smtp_password: str
 
-  allowed_origin: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
+  allowed_origin: list[str]
 
   allow_methods: list[str] = Field(
     default_factory=lambda: [method.value for method in RequestEnum]
@@ -70,8 +99,3 @@ class Settings(BaseSettings):
       "secret",
     }
   )
-
-  model_config = SettingsConfigDict(env_file=".env")
-
-
-__all__ = ("Settings",)

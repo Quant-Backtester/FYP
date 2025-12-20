@@ -3,16 +3,22 @@ from typing import Generator
 
 # External
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.orm import DeclarativeBase, Session
 
 # Custom
 from configs import settings
 
-engine = create_engine(
-  url=settings.database_url,
-  echo=settings.debug,
-  connect_args={"check_same_thread": False},
+url_object = URL.create(
+  drivername=settings.database_driver,
+  username=settings.database_username,
+  password=settings.database_password,
+  host=settings.database_host,
+  database=settings.database,
+  port=settings.database_port,
 )
+
+engine = create_engine(url=url_object)
 
 sql_session = Session(bind=engine)
 
@@ -30,6 +36,3 @@ def get_session() -> Generator[Session, None, None]:
     except Exception:
       session.rollback()
       raise
-
-
-
