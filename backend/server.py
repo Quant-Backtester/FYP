@@ -17,8 +17,8 @@ def register_middleawre(app: FastAPI) -> None:
     middleware_class=CORSMiddleware,
     allow_origins=settings.allowed_origin,
     allow_credentials=True,
-    allow_methods=settings.allow_methods,
-    allow_headers=settings.allow_headers,
+    allow_methods=settings.allowed_methods,
+    allow_headers=settings.allowed_headers,
   )
 
   app.add_middleware(middleware_class=LoggingMiddleware)
