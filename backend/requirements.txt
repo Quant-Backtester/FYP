@@ -9,3 +9,6 @@ redis
 sqlalchemy
 psycopg2-binary
 asyncpg
+numba
+cython
+ruff
