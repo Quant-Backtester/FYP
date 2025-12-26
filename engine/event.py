@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from .event_enum import EventEnum
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Event[T]:
     timestamp: int
     event_type: EventEnum
-    paylao: dict[str, T]
+    paylaod: T
