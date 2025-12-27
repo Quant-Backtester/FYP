@@ -2,7 +2,7 @@ import heapq
 from typing import NamedTuple
 
 # Custom
-from .event import Event
+from event import Event
 
 
 class Entry(NamedTuple):
@@ -15,6 +15,10 @@ class EventQueue:
     def __init__(self) -> None:
         self._heap: list[Entry] = []
         self._sequence: int = 0
+
+    @property
+    def sequence_number(self) -> int:
+        return self._sequence
 
     def push(self, event: Event) -> None:
         entry = Entry(
