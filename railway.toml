@@ -3,7 +3,5 @@ dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "uv run python server.py"
-healthcheckPath = "/docs"
-healthcheckTimeout = 30
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
