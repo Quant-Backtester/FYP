@@ -27,10 +27,15 @@ class Settings(BaseSettings):
     database_host: str = Field(default="localhost")
     database_port: int = Field(default=5432)
     database_driver: str = Field(default="postgresql+psycopg2")
+    # Managed services (Timescale Cloud, Railway, etc.) expose a single
+    # DATABASE_URL. When set, it wins over the six individual components.
+    database_url_override: str = Field(default="", validation_alias="DATABASE_URL")
 
     @computed_field
     @property
     def database_url(self) -> str:
+        if self.database_url_override:
+            return self.database_url_override
         return (
             f"{self.database_driver}://"
             f"{self.database_username}:"
