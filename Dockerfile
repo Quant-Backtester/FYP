@@ -18,4 +18,6 @@ RUN uv sync --frozen --no-dev
 # Default start command — Railway overrides this per-service:
 #   API:    uv run python server.py
 #   Worker: uv run celery -A background.celery_app worker --loglevel=info
+EXPOSE 8000
+
 CMD ["uv", "run", "python", "server.py"]

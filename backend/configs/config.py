@@ -44,11 +44,13 @@ class Settings(BaseSettings):
     valkey_host: str = Field(default="localhost")
     valkey_port: int = Field(default=6379)
     valkey_db: int = Field(default=0)
+    valkey_password: str = Field(default="")
 
     @computed_field
     @property
     def valkey_url(self) -> str:
-        return f"{self.valkey_scheme}://{self.valkey_host}:{self.valkey_port}/{self.valkey_db}"
+        auth = f":{self.valkey_password}@" if self.valkey_password else ""
+        return f"{self.valkey_scheme}://{auth}{self.valkey_host}:{self.valkey_port}/{self.valkey_db}"
 
     # Security
     jwt_secret_key: str = Field(default="123")
