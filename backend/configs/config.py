@@ -50,7 +50,10 @@ class Settings(BaseSettings):
     @property
     def valkey_url(self) -> str:
         auth = f":{self.valkey_password}@" if self.valkey_password else ""
-        return f"{self.valkey_scheme}://{auth}{self.valkey_host}:{self.valkey_port}/{self.valkey_db}"
+        base = f"{self.valkey_scheme}://{auth}{self.valkey_host}:{self.valkey_port}/{self.valkey_db}"
+        if self.valkey_scheme == "rediss":
+            base += "?ssl_cert_reqs=CERT_NONE"
+        return base
 
     # Security
     jwt_secret_key: str = Field(default="123")
