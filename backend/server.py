@@ -69,9 +69,9 @@ if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
     app: FastAPI = create_app()
 
-    # In production (DEBUG=false) bind to all interfaces so the reverse proxy
-    # (Railway / Fly / Render ingress) can reach the process.
+    import os
     host = "0.0.0.0" if not settings.debug else settings.app_host
-    uvicorn.run(app=app, host=host, port=settings.app_port)
+    port = int(os.environ.get("PORT", settings.app_port))
+    uvicorn.run(app=app, host=host, port=port)
 
     # run python server.py
