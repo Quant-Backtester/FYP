@@ -1,8 +1,10 @@
 import { browser } from '$app/environment';
-import { register, init, getLocaleFromNavigator } from 'svelte-i18n';
+import { addMessages, init, getLocaleFromNavigator } from 'svelte-i18n';
+import en from '$lib/locales/en.json';
+import zh from '$lib/locales/zh.json';
 
-register('en', () => import("$lib/locales/en.json"));
-register('zh', () => import('$lib/locales/zh.json'));
+addMessages('en', en);
+addMessages('zh', zh);
 
 init({
   fallbackLocale: 'en',
