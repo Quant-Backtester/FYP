@@ -5,5 +5,5 @@ register('zh', () => import('$lib/locales/zh.json'));
 
 init({
   fallbackLocale: 'en',
-  initialLocale: getLocaleFromNavigator(),
+  initialLocale: getLocaleFromNavigator() ?? 'en',
 });
