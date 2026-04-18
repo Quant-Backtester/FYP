@@ -67,6 +67,13 @@ class Settings(BaseSettings):
     # Override via FRONTEND_URL env var in production.
     frontend_url: str = Field(default="http://localhost:5173")
 
+    # Fundamentals (Financial Modeling Prep)
+    # `fundamentals_source` chooses which fetcher CLI/Celery tasks route to.
+    # Default "fmp" — yfinance is kept for dev/smoke tests only; Yahoo exposes
+    # ~5 recent quarters, insufficient for any real backtest window.
+    fmp_api_key: str = Field(default="")
+    fundamentals_source: str = Field(default="fmp")
+
     # email
     resend_api_key: str = Field(default="")
     resend_from_email: str = Field(default="onboarding@resend.dev")
