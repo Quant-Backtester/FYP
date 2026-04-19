@@ -484,6 +484,8 @@
         return { top_pct: 0.2, bottom_pct: 0.2, rebalance_days: 21, mode: 'long_only' };
       case 'Buy':
         return { size_type: 'units', amount: 10 };
+      case 'Sell':
+        return { size_type: 'all' };
       case 'Constant':
         return { value: 30 };
       case 'Data':
@@ -2752,11 +2754,60 @@
         {/if}
 
         {#if selected.type === 'Sell'}
-          <div class="rounded-md border bg-muted/40 p-3 text-xs text-muted-foreground">
-            Sell closes the entire open position (CloseSignal). Partial sells
-            aren't supported yet — the engine's OrderManager silently ignores
-            quantity on Close, so there's no honest way to expose sizing here.
+          {@const sellSize = String(selected.params.size_type ?? 'all')}
+          {@const sellAmountLabel =
+            sellSize === 'pct_position' ? 'Percent of position (%)'
+              : sellSize === 'units' ? 'Shares to sell'
+              : null}
+          <div class="space-y-2">
+            <Label for="sellSizeType">Sizing</Label>
+            <select
+              id="sellSizeType"
+              class="h-9 w-full rounded-md border bg-background px-3 py-1 text-sm"
+              value={sellSize}
+              onchange={(e) => {
+                const next = (e.currentTarget as HTMLSelectElement).value;
+                updateNodeParam(selected.id, 'size_type', next);
+                if (next === 'pct_position') updateNodeParam(selected.id, 'amount', 50);
+                else if (next === 'units') updateNodeParam(selected.id, 'amount', 1);
+                else updateNodeParam(selected.id, 'amount', 0);
+              }}
+            >
+              <option value="all">Close entire position</option>
+              <option value="pct_position">% of position</option>
+              <option value="units">Shares (units)</option>
+            </select>
           </div>
+          {#if sellAmountLabel}
+            <div class="space-y-2">
+              <Label for="sellAmount">{sellAmountLabel}</Label>
+              <Input
+                id="sellAmount"
+                type="number"
+                min="0"
+                step={sellSize === 'units' ? '1' : '0.01'}
+                value={String(selected.params.amount ?? (sellSize === 'pct_position' ? 50 : 1))}
+                oninput={(e) => {
+                  const v = parseFloat((e.currentTarget as HTMLInputElement).value);
+                  if (!isNaN(v) && v > 0) updateNodeParam(selected.id, 'amount', v);
+                }}
+              />
+              <p class="text-xs text-muted-foreground">
+                {#if sellSize === 'pct_position'}
+                  Closes the given fraction of the open position, FIFO.
+                  Useful for scale-out rules (e.g. sell 33% at each target).
+                {:else}
+                  Closes exactly this share count, FIFO. Engine caps at the
+                  current position size if you ask for more.
+                {/if}
+              </p>
+            </div>
+          {:else}
+            <p class="text-xs text-muted-foreground">
+              Closes every open share for this symbol in one go — the legacy
+              "exit" behaviour.
+            </p>
+          {/if}
         {/if}
 
         {#if selected.type === 'Momentum'}

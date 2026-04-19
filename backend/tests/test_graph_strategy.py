@@ -408,6 +408,87 @@ class TestSell:
 
 
 # ---------------------------------------------------------------------------
+# Sell sizing modes (all / pct_position / units) + partial-close state machine
+# ---------------------------------------------------------------------------
+
+class TestSellSizing:
+  def _graph(self, size_type: str, amount: float = 0.0) -> dict:
+    params: dict = {"size_type": size_type}
+    if amount:
+      # Frontend serialises "amount" flat under `data`.  Mirror that here.
+      return _make_graph(
+        [_node("ob", "OnBar"),
+         _node("sell", "Sell", params=params, amount=amount)],
+        [_edge("ob", "sell")],
+      )
+    return _make_graph(
+      [_node("ob", "OnBar"), _node("sell", "Sell", params=params)],
+      [_edge("ob", "sell")],
+    )
+
+  def test_all_emits_plain_close(self):
+    gs = GraphStrategy(self._graph("all"))
+    gs._in_position = True
+    gs._position_qty = 10.0
+    sig = gs.on_event(_event(100.0))
+    assert sig.__class__.__name__ == "CloseSignal"
+    assert getattr(sig, "order_id", "sentinel") is None
+    assert getattr(sig, "quantity", None) is None
+    assert getattr(sig, "fraction", None) is None
+
+  def test_pct_position_sets_fraction(self):
+    gs = GraphStrategy(self._graph("pct_position", amount=50.0))
+    gs._in_position = True
+    gs._position_qty = 10.0
+    sig = gs.on_event(_event(100.0))
+    assert sig.__class__.__name__ == "CloseSignal"
+    assert sig.fraction == 0.5
+
+  def test_pct_position_caps_at_100(self):
+    gs = GraphStrategy(self._graph("pct_position", amount=150.0))
+    gs._in_position = True
+    gs._position_qty = 10.0
+    sig = gs.on_event(_event(100.0))
+    assert sig.fraction == 1.0
+
+  def test_units_sets_quantity(self):
+    gs = GraphStrategy(self._graph("units", amount=3.0))
+    gs._in_position = True
+    gs._position_qty = 10.0
+    sig = gs.on_event(_event(100.0))
+    assert sig.quantity == 3.0
+
+  def test_partial_sell_keeps_in_position(self):
+    # With fraction=0.5 and position_qty=10, we close 5 shares. Position
+    # stays open with 5 remaining → _in_position must stay True so
+    # subsequent Buys are blocked by the re-entry guard.
+    gs = GraphStrategy(self._graph("pct_position", amount=50.0))
+    gs._in_position = True
+    gs._position_qty = 10.0
+    gs.on_event(_event(100.0))
+    assert gs._in_position is True
+    assert gs._position_qty == 5.0
+
+  def test_full_sell_clears_position(self):
+    gs = GraphStrategy(self._graph("all"))
+    gs._in_position = True
+    gs._position_qty = 10.0
+    gs.on_event(_event(100.0))
+    assert gs._in_position is False
+    assert gs._position_qty == 0.0
+
+  def test_units_over_position_clamps_and_clears(self):
+    # Selling 15 units when only 10 are held should flatten the position
+    # (engine caps the close at total_quantity anyway).
+    gs = GraphStrategy(self._graph("units", amount=15.0))
+    gs._in_position = True
+    gs._position_qty = 10.0
+    gs.on_event(_event(100.0))
+    assert gs._in_position is False
+    assert gs._position_qty == 0.0
+
+
+# ---------------------------------------------------------------------------
 # Non-MarketDataEvent returns NullSignal
 # ---------------------------------------------------------------------------
 
