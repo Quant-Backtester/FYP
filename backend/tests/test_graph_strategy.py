@@ -91,12 +91,21 @@ def _event(price: float):
 def _make_graph(nodes: list[dict], edges: list[dict] | None = None) -> dict:
   return {"nodes": nodes, "edges": edges or []}
 
-def _node(nid: str, ntype: str, params: dict | None = None, amount: float | None = None) -> dict:
+def _node(
+  nid: str, ntype: str,
+  params: dict | None = None,
+  amount: float | None = None,
+  size_type: str | None = None,
+) -> dict:
   data: dict = {}
   if params:
-    data["params"] = params
+    data["params"] = dict(params)
   if amount is not None:
     data["amount"] = amount
+  # Frontend serialises params flat under `data` (see +page.svelte exportPayload).
+  # Mirror that here so tests hit the same path as the real payload.
+  if size_type is not None:
+    data["size_type"] = size_type
   return {"id": nid, "type": ntype, "data": data}
 
 def _edge(src: str, tgt: str, src_h: str = "out", tgt_h: str = "in") -> dict:
@@ -172,6 +181,56 @@ class TestOnBarBuy:
     gs = GraphStrategy(g)
     sig = gs.on_event(_event(100.0))
     assert sig.__class__.__name__ == "NullSignal"
+
+
+# ---------------------------------------------------------------------------
+# Buy sizing modes (units / pct_equity / dollar)
+# ---------------------------------------------------------------------------
+
+class TestBuySizing:
+  def _graph(self, amount: float, size_type: str) -> dict:
+    return _make_graph(
+      [_node("ob", "OnBar"),
+       _node("buy", "Buy", amount=amount, size_type=size_type)],
+      [_edge("ob", "buy")],
+    )
+
+  def test_units_matches_legacy_behaviour(self):
+    # Explicit size_type='units' must behave identically to the legacy path
+    # that had no size_type — quantity = amount regardless of price.
+    gs = GraphStrategy(self._graph(7.0, "units"), initial_capital=10000.0)
+    sig = gs.on_event(_event(100.0))
+    assert sig.__class__.__name__ == "AddSignal"
+    assert sig.quantity == 7.0
+
+  def test_pct_equity_sizes_against_initial_capital(self):
+    # 10% of $10,000 = $1,000; at $100/share → floor(1000/100) = 10 shares.
+    gs = GraphStrategy(self._graph(10.0, "pct_equity"), initial_capital=10000.0)
+    sig = gs.on_event(_event(100.0))
+    assert sig.quantity == 10
+
+  def test_pct_equity_floors_fractional_shares(self):
+    # 10% of $10,000 = $1,000; at $333/share → floor(1000/333) = 3.
+    gs = GraphStrategy(self._graph(10.0, "pct_equity"), initial_capital=10000.0)
+    sig = gs.on_event(_event(333.0))
+    assert sig.quantity == 3
+
+  def test_pct_equity_suppresses_when_price_too_high(self):
+    # 1% of $10,000 = $100; at $150/share → floor = 0 → NullSignal.
+    gs = GraphStrategy(self._graph(1.0, "pct_equity"), initial_capital=10000.0)
+    sig = gs.on_event(_event(150.0))
+    assert sig.__class__.__name__ == "NullSignal"
+
+  def test_dollar_sizing(self):
+    # $1,000 at $80/share → floor(1000/80) = 12.
+    gs = GraphStrategy(self._graph(1000.0, "dollar"), initial_capital=10000.0)
+    sig = gs.on_event(_event(80.0))
+    assert sig.quantity == 12
+
+  def test_unknown_size_type_falls_back_to_units(self):
+    gs = GraphStrategy(self._graph(4.0, "wat"), initial_capital=10000.0)
+    sig = gs.on_event(_event(100.0))
+    assert sig.quantity == 4.0
 
 
 # ---------------------------------------------------------------------------

@@ -102,7 +102,16 @@ class GraphStrategy:
               on every bar when one is not provided.
   """
 
-  def __init__(self, graph: dict, ohlcv_df=None) -> None:
+  def __init__(
+    self, graph: dict, ohlcv_df=None, initial_capital: float = 100000.0,
+  ) -> None:
+    # initial_capital is used for Buy sizing modes that reference equity
+    # ("pct_equity"). We size against initial capital rather than current
+    # equity because the engine doesn't plumb live portfolio state into the
+    # strategy — and "% of initial" is a well-defined convention (cf.
+    # Zipline's `order_target_percent` semantics for the first trade).
+    self._initial_capital: float = float(initial_capital)
+
     self._nodes: dict[str, dict] = {
       n["id"]: n for n in graph.get("nodes", []) if n.get("id")
     }
@@ -712,15 +721,36 @@ class GraphStrategy:
           amount = float(
             _node_data_field(node, "amount") or _node_param(node, "amount", 10)
           )
-          outputs[nid] = {"signal": AddSignal(
-            side=Side.BUY,
-            type=OrderType.MARKET,
-            price=float(bar.price),
-            symbol=bar.symbol,
-            quantity=amount,
-            take_profit=None,
-            stop_loss=None,
-          )}
+          # Sizing modes:
+          #   units       → quantity = amount (legacy, default for old graphs)
+          #   pct_equity  → quantity = floor((initial_capital × pct/100) / price)
+          #   dollar      → quantity = floor(amount / price)
+          size_type = str(
+            _node_param(node, "size_type")
+            or _node_data_field(node, "size_type")
+            or "units"
+          )
+          price = float(bar.price) if bar.price else 0.0
+          if size_type == "pct_equity" and price > 0:
+            dollars = self._initial_capital * (amount / 100.0)
+            quantity = max(0.0, math.floor(dollars / price))
+          elif size_type == "dollar" and price > 0:
+            quantity = max(0.0, math.floor(amount / price))
+          else:
+            quantity = amount
+
+          if quantity <= 0:
+            outputs[nid] = {"signal": None}
+          else:
+            outputs[nid] = {"signal": AddSignal(
+              side=Side.BUY,
+              type=OrderType.MARKET,
+              price=float(bar.price),
+              symbol=bar.symbol,
+              quantity=quantity,
+              take_profit=None,
+              stop_loss=None,
+            )}
         else:
           outputs[nid] = {"signal": None}
 
