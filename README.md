@@ -156,15 +156,3 @@ Celery worker — is in [QUICKSTART.md](QUICKSTART.md).
 | Engine | In-house Python (zero-dependency, deterministic) |
 | Hosting | Vercel · Railway · Timescale Cloud · Upstash Redis |
 | Email | Resend (custom Cloudflare-DNS domain) |
-
----
-
-## Team
-
-A two-person Final Year Project. Component ownership:
-
-- **Web application** (this repository's `backend/` and `frontend/`) — Lei Kam Fai
-- **Trading engine** (the [`trading_engine/`](trading_engine/) submodule) — teammate
-
-Both repositories share the same GitHub organisation,
-[`Quant-Backtester`](https://github.com/Quant-Backtester).
